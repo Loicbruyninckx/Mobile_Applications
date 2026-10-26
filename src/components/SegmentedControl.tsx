@@ -17,7 +17,7 @@ interface SegmentedControlProps<T extends string> {
 /** Rij van aaneengesloten knoppen waarvan er altijd één actief is, bv. om te sorteren. */
 export function SegmentedControl<T extends string>({ options, value, onChange, testID }: SegmentedControlProps<T>) {
   return (
-    <View style={styles.base} accessibilityRole="tablist" testID={testID}>
+    <View style={styles.base} role="tablist" testID={testID}>
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -25,8 +25,8 @@ export function SegmentedControl<T extends string>({ options, value, onChange, t
             key={option.value}
             onPress={() => onChange(option.value)}
             style={[styles.segment, active && styles.active]}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: active }}
+            role="tab"
+            aria-selected={active}
             testID={testID !== undefined ? `${testID}-${option.value}` : undefined}
           >
             <Text size="lg" weight={active ? 'bold' : 'normal'} color={active ? colors.card : colors.text}>

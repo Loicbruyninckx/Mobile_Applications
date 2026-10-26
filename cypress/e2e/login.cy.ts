@@ -1,23 +1,50 @@
-describe('Login screen', () => {
-  beforeEach(() => {
-    cy.visit('/login');
-  });
+import { envValue } from '../support/env';
 
-  it('renders the login form', () => {
-    cy.get('[data-testid="email-input"]').should('exist');
-    cy.get('[data-testid="password-input"]').should('exist');
-    cy.get('[data-testid="login-button"]').should('exist');
-  });
+describe('Inloggen en uitloggen', () => {
+  it('1a: inloggen lukt en je blijft ingelogd na verversen', () => {
+    cy.visit('/');
+    // Niet ingelogd → de app stuurt je naar het inlogscherm.
+    cy.location('pathname').should('eq', '/login');
+    cy.get('[data-testid="login-button"]').should('be.visible');
+    cy.waitForHydration();
 
-  it('logs in with valid credentials and navigates to home', () => {
-    // Replace with your Supabase test credentials before running this test
-    const testEmail = 'test@example.com';
-    const testPassword = 'password123';
-
-    cy.get('[data-testid="email-input"]').type(testEmail);
-    cy.get('[data-testid="password-input"]').type(testPassword);
+    cy.get('[data-testid="email-input"]').type(envValue('TEST1_EMAIL'));
+    cy.get('[data-testid="password-input"]').type(envValue('TEST1_PASSWORD'), { log: false });
     cy.get('[data-testid="login-button"]').click();
 
-    cy.url().should('include', '/');
+    cy.location('pathname').should('eq', '/');
+    cy.get('[data-testid="tab-bar"]').should('be.visible');
+    cy.get('[data-testid="tab-index"]').should('have.attr', 'aria-selected', 'true');
+
+    cy.reload();
+    cy.location('pathname').should('eq', '/');
+    cy.get('[data-testid="tab-bar"]').should('be.visible');
+  });
+
+  it('1b: fout wachtwoord geeft een foutmelding', () => {
+    cy.visit('/login');
+    cy.waitForHydration();
+    cy.get('[data-testid="email-input"]').type(envValue('TEST1_EMAIL'));
+    cy.get('[data-testid="password-input"]').type('dit-is-fout-123');
+    cy.get('[data-testid="login-button"]').click();
+
+    cy.get('[data-testid="login-error"]').should('be.visible');
+    cy.location('pathname').should('eq', '/login');
+    cy.get('[data-testid="tab-bar"]').should('not.exist');
+  });
+
+  it('1c: uitloggen brengt je naar het inlogscherm, ook via de URL', () => {
+    cy.login(envValue('TEST1_EMAIL'), envValue('TEST1_PASSWORD'));
+
+    cy.get('[data-testid="tab-profiel"]').click();
+    cy.get('[data-testid="logout-button"]').click();
+
+    cy.location('pathname').should('eq', '/login');
+    cy.get('[data-testid="login-button"]').should('be.visible');
+
+    // Home openen via de URL lukt niet meer zonder sessie.
+    cy.visit('/');
+    cy.location('pathname').should('eq', '/login');
+    cy.get('[data-testid="tab-bar"]').should('not.exist');
   });
 });

@@ -1,8 +1,7 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { colors } from '../theme/colors';
 import type { Score } from '../types/Rating';
 import { Icon } from './primitives/Icon';
-import { Row } from './primitives/Row';
 
 const SCORES: Score[] = [1, 2, 3, 4, 5];
 
@@ -13,10 +12,15 @@ interface StarRatingProps {
   testID?: string;
 }
 
-/** Vijf grote sterknoppen: tik op ster 4 → score 4. */
+/**
+ * Vijf grote sterknoppen: tik op ster 4 → score 4.
+ * Voor schermlezers is het een keuzegroep (radiogroup): je kiest precies één score,
+ * en de gekozen ster is "aangevinkt" (aria-checked).
+ * De gevulde sterren krijgen een testID `<testID>-<score>-filled` voor de E2E-tests.
+ */
 export function StarRating({ value, onChange, testID }: StarRatingProps) {
   return (
-    <Row gap="sm" wrap>
+    <View style={styles.row} role="radiogroup" aria-label="Score">
       {SCORES.map((score) => {
         const filled = value !== undefined && score <= value;
         return (
@@ -24,21 +28,28 @@ export function StarRating({ value, onChange, testID }: StarRatingProps) {
             key={score}
             onPress={() => onChange(score)}
             style={[styles.star, filled ? styles.filled : styles.empty]}
-            accessibilityRole="button"
-            accessibilityLabel={score === 1 ? '1 ster' : `${score} sterren`}
-            accessibilityState={{ selected: score === value }}
+            role="radio"
+            aria-checked={score === value}
+            aria-label={score === 1 ? '1 ster' : `${score} sterren`}
             testID={testID !== undefined ? `${testID}-${score}` : undefined}
           >
-            {/* Altijd donkere ster op amber (contrast), grijze ster op wit. */}
-            <Icon name="star" size={24} color={filled ? colors.primary : colors.inputBorder} />
+            <View testID={filled && testID !== undefined ? `${testID}-${score}-filled` : undefined}>
+              {/* Altijd donkere ster op amber (contrast), grijze ster op wit. */}
+              <Icon name="star" size={24} color={filled ? colors.primary : colors.inputBorder} />
+            </View>
           </Pressable>
         );
       })}
-    </Row>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   star: {
     width: 52,
     height: 52,

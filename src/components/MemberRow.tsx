@@ -11,16 +11,17 @@ interface MemberRowProps {
   member: GroupMemberWithProfile;
   isCreator: boolean;
   isMe: boolean;
+  testID?: string;
 }
 
 
 /** Eén lid in de ledenlijst: avatar met initialen, naam en sinds wanneer lid. */
-export function MemberRow({ member, isCreator, isMe }: MemberRowProps) {
+export function MemberRow({ member, isCreator, isMe, testID }: MemberRowProps) {
   return (
     <Row gap="md">
       <Avatar name={member.username} size="md" />
       <Stack flex={1}>
-        <Text size="lg" weight="bold" color={colors.primary} numberOfLines={1}>
+        <Text size="lg" weight="bold" color={colors.primary} numberOfLines={1} testID={testID}>
           {isMe ? `${member.username} (jij)` : member.username}
         </Text>
         <Text size="sm" color={colors.textSecondary}>Lid sinds {formatDate(member.joinedAt)}</Text>

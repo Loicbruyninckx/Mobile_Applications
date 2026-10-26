@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { GROUP_COLUMNS, readNestedRow, readOptionalNumber, readOptionalString, readString, toGroup, type Row } from './rowParsers';
-import type { Group, GroupWithMemberCount } from '../types/Group';
+import type { Group, GroupWithMemberCount, JoinGroupResult } from '../types/Group';
 import type { GroupMemberWithProfile } from '../types/GroupMember';
 
 /** Zelfde regel als de check constraint in SQL: 1 tot 50 tekens. */
@@ -87,13 +87,42 @@ export function normalizeInviteCode(input: string): string {
 }
 
 /**
- * Joint een groep met een uitnodigingscode via de databasefunctie join_group_by_code.
- * Al lid? Dan gebeurt er niets. Geeft het id van de groep terug.
+ * Kijkt of je al lid bent van de groep met deze code.
+ * Door RLS zie je een groep alleen als je er lid (of maker) van bent. De maker kan de
+ * groep verlaten hebben, daarom controleren we ook group_members.
  */
-export async function joinGroupByCode(code: string): Promise<string> {
+async function findMembershipByCode(code: string): Promise<Group | undefined> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user.id;
+  if (userId === undefined) {
+    throw new Error('Je bent niet ingelogd.');
+  }
+
+  const { data, error } = await supabase
+    .from('groups')
+    .select(`${GROUP_COLUMNS}, group_members!inner(user_id)`)
+    .eq('invite_code', code)
+    .eq('group_members.user_id', userId)
+    .maybeSingle();
+  if (error) {
+    throw new Error('Joinen mislukt. Controleer je internetverbinding en probeer opnieuw.');
+  }
+  return data ? toGroup(data) : undefined;
+}
+
+/**
+ * Joint een groep met een uitnodigingscode via de databasefunctie join_group_by_code.
+ * Ben je al lid, dan verandert er niets en is alreadyMember true.
+ */
+export async function joinGroupByCode(code: string): Promise<JoinGroupResult> {
   const clean = normalizeInviteCode(code);
   if (clean.length !== INVITE_CODE_LENGTH) {
     throw new Error(`Een code heeft ${INVITE_CODE_LENGTH} tekens.`);
+  }
+
+  const existing = await findMembershipByCode(clean);
+  if (existing !== undefined) {
+    return { groupId: existing.id, groupName: existing.name, alreadyMember: true };
   }
 
   const { data, error } = await supabase.rpc('join_group_by_code', { code: clean });
@@ -107,5 +136,7 @@ export async function joinGroupByCode(code: string): Promise<string> {
   if (typeof data !== 'string') {
     throw new Error('Joinen mislukt. Probeer opnieuw.');
   }
-  return data;
+
+  const group = await getGroup(data);
+  return { groupId: group.id, groupName: group.name, alreadyMember: false };
 }

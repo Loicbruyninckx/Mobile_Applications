@@ -18,8 +18,8 @@ export function ChoiceChip({ label, selected, onPress, testID }: ChoiceChipProps
     <Pressable
       onPress={onPress}
       style={[styles.base, selected ? styles.selected : styles.unselected]}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked: selected }}
+      role="checkbox"
+      aria-checked={selected}
       accessibilityLabel={label}
       testID={testID}
     >

@@ -20,3 +20,11 @@ export interface NewGroup {
 export interface GroupWithMemberCount extends Group {
   memberCount: number;
 }
+
+/** Resultaat van joinen met een code. */
+export interface JoinGroupResult {
+  groupId: string;
+  groupName: string;
+  /** true = je was al lid, er is niets veranderd. */
+  alreadyMember: boolean;
+}

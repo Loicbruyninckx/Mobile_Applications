@@ -38,17 +38,25 @@ export function RatingCard({ rating, rank, testID }: RatingCardProps) {
             <Icon name="beer-outline" size={24} color={colors.primary} />
           </View>
           <Stack flex={1}>
-            <Text size="lg" weight="bold" color={colors.primary} numberOfLines={1}>
+            <Text
+              size="lg"
+              weight="bold"
+              color={colors.primary}
+              numberOfLines={1}
+              testID={testID !== undefined ? `${testID}-beer-name` : undefined}
+            >
               {rating.beer.name}
             </Text>
             {details !== '' && (
               <Text color={colors.textSecondary} numberOfLines={1}>{details}</Text>
             )}
           </Stack>
-          <StarDisplay score={rating.score} />
+          <StarDisplay score={rating.score} testID={testID !== undefined ? `${testID}-stars` : undefined} />
         </Row>
         {rating.review !== undefined && (
-          <Text numberOfLines={2}>“{rating.review}”</Text>
+          <Text numberOfLines={2} testID={testID !== undefined ? `${testID}-review` : undefined}>
+            “{rating.review}”
+          </Text>
         )}
         <Text size="sm" color={colors.textSecondary}>{formatDate(rating.createdAt)}</Text>
       </Stack>

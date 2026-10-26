@@ -139,6 +139,7 @@ export default function GroepsdetailScreen() {
                           member={member}
                           isCreator={member.userId === group.createdBy}
                           isMe={member.userId === myUserId}
+                          testID={`member-${member.userId}`}
                         />
                       </Stack>
                     ))}

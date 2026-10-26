@@ -18,8 +18,10 @@ export function NavItem({ label, onPress, active = false, icon, testID }: NavIte
     <Pressable
       onPress={onPress}
       style={styles.base}
-      accessibilityRole="tab"
-      accessibilityState={{ selected: active }}
+      // role en aria-* i.p.v. accessibilityRole/accessibilityState: react-native-web zet
+      // alleen deze om naar de DOM, en op native werken ze ook.
+      role="tab"
+      aria-selected={active}
       accessibilityLabel={label}
       testID={testID}
     >

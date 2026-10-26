@@ -39,12 +39,16 @@ export function FeedCard({ rating, groupLabel, isMine = false, testID }: FeedCar
             </Text>
             <Text size="sm" color={colors.textSecondary} numberOfLines={1}>{meta}</Text>
           </Stack>
-          <StarDisplay score={rating.score} />
+          <StarDisplay score={rating.score} testID={testID !== undefined ? `${testID}-stars` : undefined} />
         </Row>
         <Stack gap="sm">
-          <Text size="lg" weight="bold" color={colors.primary}>{rating.beer.name}</Text>
+          <Text size="lg" weight="bold" color={colors.primary} testID={testID !== undefined ? `${testID}-beer-name` : undefined}>
+            {rating.beer.name}
+          </Text>
           {beerDetails !== '' && <Text color={colors.textSecondary}>{beerDetails}</Text>}
-          {rating.review !== undefined && <Text>“{rating.review}”</Text>}
+          {rating.review !== undefined && (
+            <Text testID={testID !== undefined ? `${testID}-review` : undefined}>“{rating.review}”</Text>
+          )}
         </Stack>
       </Stack>
     </Card>

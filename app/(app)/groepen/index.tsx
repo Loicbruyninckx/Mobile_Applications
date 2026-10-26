@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import {
   createGroup,
@@ -15,11 +15,17 @@ import { Text } from '../../../src/components/primitives/Text';
 import { Card } from '../../../src/components/primitives/Card';
 import { InputField } from '../../../src/components/primitives/InputField';
 import { EmptyState } from '../../../src/components/primitives/EmptyState';
+import { Toast } from '../../../src/components/primitives/Toast';
 import { StyledButton } from '../../../src/components/StyledButton';
 import { ChoiceCard } from '../../../src/components/ChoiceCard';
 import { CardSkeleton } from '../../../src/components/CardSkeleton';
 import { colors } from '../../../src/theme/colors';
 import type { GroupWithMemberCount } from '../../../src/types/Group';
+
+interface ToastState {
+  message: string;
+  variant: 'default' | 'success';
+}
 
 function openGroup(id: string) {
   router.push({ pathname: '/groepen/[id]', params: { id } });
@@ -33,6 +39,7 @@ export default function GroepenScreen() {
   const [joinCode, setJoinCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | undefined>();
+  const [toast, setToast] = useState<ToastState | undefined>();
 
   // undefined = formulier "Nieuwe groep" is dicht.
   const [newGroupName, setNewGroupName] = useState<string | undefined>();
@@ -49,13 +56,26 @@ export default function GroepenScreen() {
   // Herladen telkens je naar deze tab of terug naar de lijst gaat.
   useFocusEffect(load);
 
+  // Toast verdwijnt na 3 seconden.
+  useEffect(() => {
+    if (toast === undefined) return;
+    const timer = setTimeout(() => setToast(undefined), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   const handleJoin = async () => {
     setJoinError(undefined);
     setIsJoining(true);
     try {
-      const groupId = await joinGroupByCode(joinCode);
+      const result = await joinGroupByCode(joinCode);
       setJoinCode('');
-      openGroup(groupId);
+      // Op de lijst blijven: je ziet meteen dat de groep erbij staat.
+      setToast(
+        result.alreadyMember
+          ? { message: `Je bent al lid van ${result.groupName}.`, variant: 'default' }
+          : { message: `Je bent lid van ${result.groupName}! 🍻`, variant: 'success' },
+      );
+      load();
     } catch (e) {
       setJoinError(e instanceof Error ? e.message : 'Joinen mislukt.');
     } finally {
@@ -99,14 +119,17 @@ export default function GroepenScreen() {
     }
     if (groups.length === 0) {
       return (
-        <EmptyState
-          title="Nog geen groepen"
-          description="Maak een groep voor je vriendengroep, of join er een met de code die je van een vriend kreeg."
-        />
+        <Stack testID="group-list">
+          <EmptyState
+            title="Nog geen groepen"
+            description="Maak een groep voor je vriendengroep, of join er een met de code die je van een vriend kreeg."
+          />
+        </Stack>
       );
     }
+    // testID group-list = de lijst is geladen (de tests wachten hierop).
     return (
-      <Stack gap="md">
+      <Stack gap="md" testID="group-list">
         {groups.map((group) => (
           <ChoiceCard
             key={group.id}
@@ -115,7 +138,7 @@ export default function GroepenScreen() {
             icon="people-outline"
             trailingIcon="chevron-forward"
             onPress={() => openGroup(group.id)}
-            testID="group-card"
+            testID={`group-card-${group.id}`}
           />
         ))}
       </Stack>
@@ -123,77 +146,85 @@ export default function GroepenScreen() {
   };
 
   return (
-    <Screen padding="lg">
-      <Stack gap="lg">
-        <Text size="xl" weight="bold" color={colors.primary}>Groepen</Text>
+    <Stack flex={1}>
+      <Screen padding="lg">
+        <Stack gap="lg">
+          <Text size="xl" weight="bold" color={colors.primary}>Groepen</Text>
 
-        {/* Joinen met een code */}
-        <Card>
-          <Stack gap="sm" padding="md">
-            <Row gap="sm" align="flex-end">
-              <Stack flex={1}>
-                <InputField
-                  label="Groep joinen met een code"
-                  value={joinCode}
-                  onChangeText={(text) => setJoinCode(normalizeInviteCode(text))}
-                  placeholder="bv. K7P2QX"
-                  autoCapitalize="characters"
-                  maxLength={INVITE_CODE_LENGTH}
-                  testID="join-code-input"
-                />
-              </Stack>
-              <StyledButton label="Join" onPress={handleJoin} isLoading={isJoining} testID="join-button" />
-            </Row>
-            {joinError !== undefined && <Text color={colors.error}>{joinError}</Text>}
-          </Stack>
-        </Card>
-
-        {/* Mijn groepen */}
-        <Stack gap="md">
-          <Row justify="space-between" gap="md">
-            <Text size="lg" weight="bold" color={colors.primary}>Mijn groepen</Text>
-            {newGroupName === undefined && (
-              <StyledButton
-                label="+ Nieuwe groep"
-                variant="secondary"
-                onPress={() => setNewGroupName('')}
-                testID="new-group-button"
-              />
-            )}
-          </Row>
-
-          {newGroupName !== undefined && (
-            <Card highlighted>
-              <Stack gap="md" padding="md">
-                <InputField
-                  label="Naam van je groep"
-                  value={newGroupName}
-                  onChangeText={setNewGroupName}
-                  placeholder="bv. De Leuvense Tripelaars"
-                  autoCapitalize="words"
-                  maxLength={GROUP_NAME_MAX}
-                  testID="new-group-name"
-                />
-                <Text size="sm" color={colors.textSecondary}>
-                  Je groep krijgt automatisch een uitnodigingscode van 6 tekens.
+          {/* Joinen met een code */}
+          <Card>
+            <Stack gap="sm" padding="md">
+              <Row gap="sm" align="flex-end">
+                <Stack flex={1}>
+                  <InputField
+                    label="Groep joinen met een code"
+                    value={joinCode}
+                    onChangeText={(text) => setJoinCode(normalizeInviteCode(text))}
+                    placeholder="bv. K7P2QX"
+                    autoCapitalize="characters"
+                    maxLength={INVITE_CODE_LENGTH}
+                    testID="join-code-input"
+                  />
+                </Stack>
+                <StyledButton label="Join" onPress={handleJoin} isLoading={isJoining} testID="join-button" />
+              </Row>
+              {joinError !== undefined && (
+                <Text color={colors.error} testID="join-error">
+                  {joinError}
                 </Text>
-                {createError !== undefined && <Text color={colors.error}>{createError}</Text>}
-                <StyledButton label="Groep aanmaken" onPress={handleCreate} isLoading={isCreating} testID="create-group-button" />
-                <StyledButton
-                  label="Annuleren"
-                  variant="secondary"
-                  onPress={() => {
-                    setNewGroupName(undefined);
-                    setCreateError(undefined);
-                  }}
-                />
-              </Stack>
-            </Card>
-          )}
+              )}
+            </Stack>
+          </Card>
 
-          {renderGroups()}
+          {/* Mijn groepen */}
+          <Stack gap="md">
+            <Row justify="space-between" gap="md">
+              <Text size="lg" weight="bold" color={colors.primary}>Mijn groepen</Text>
+              {newGroupName === undefined && (
+                <StyledButton
+                  label="+ Nieuwe groep"
+                  variant="secondary"
+                  onPress={() => setNewGroupName('')}
+                  testID="new-group-button"
+                />
+              )}
+            </Row>
+
+            {newGroupName !== undefined && (
+              <Card highlighted>
+                <Stack gap="md" padding="md">
+                  <InputField
+                    label="Naam van je groep"
+                    value={newGroupName}
+                    onChangeText={setNewGroupName}
+                    placeholder="bv. De Leuvense Tripelaars"
+                    autoCapitalize="words"
+                    maxLength={GROUP_NAME_MAX}
+                    testID="new-group-name"
+                  />
+                  <Text size="sm" color={colors.textSecondary}>
+                    Je groep krijgt automatisch een uitnodigingscode van 6 tekens.
+                  </Text>
+                  {createError !== undefined && <Text color={colors.error}>{createError}</Text>}
+                  <StyledButton label="Groep aanmaken" onPress={handleCreate} isLoading={isCreating} testID="create-group-button" />
+                  <StyledButton
+                    label="Annuleren"
+                    variant="secondary"
+                    onPress={() => {
+                      setNewGroupName(undefined);
+                      setCreateError(undefined);
+                    }}
+                  />
+                </Stack>
+              </Card>
+            )}
+
+            {renderGroups()}
+          </Stack>
         </Stack>
-      </Stack>
-    </Screen>
+      </Screen>
+
+      <Toast visible={toast !== undefined} message={toast?.message ?? ''} variant={toast?.variant} testID="join-toast" />
+    </Stack>
   );
 }

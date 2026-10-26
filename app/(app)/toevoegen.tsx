@@ -396,17 +396,17 @@ export default function ToevoegenScreen() {
               </Row>
             )}
           </Stack>
-
-          {error !== undefined && (
-            <Text color={colors.error} weight="medium">
-              {error}
-            </Text>
-          )}
         </Stack>
       </Screen>
 
-      {/* Opslaan-knop altijd onderaan, bereikbaar met je duim. */}
-      <Stack padding="md">
+      {/* Opslaan-knop altijd onderaan, bereikbaar met je duim. De foutmelding staat er
+          vlak boven, zodat je ze ziet waar je ook gescrolld bent. */}
+      <Stack padding="md" gap="sm">
+        {error !== undefined && (
+          <Text color={colors.error} weight="medium" align="center" testID="rating-error">
+            {error}
+          </Text>
+        )}
         <StyledButton label="Rating opslaan" onPress={handleSave} isLoading={isSaving} testID="save-rating-button" />
       </Stack>
 

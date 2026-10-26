@@ -12,7 +12,7 @@ export function Nav({ children, bottomInset = 0, testID }: NavProps) {
   return (
     <View
       style={[styles.base, { paddingBottom: bottomInset }]}
-      accessibilityRole="tablist"
+      role="tablist"
       testID={testID}
     >
       {children}

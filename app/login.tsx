@@ -78,7 +78,7 @@ export default function LoginScreen() {
           testID="password-input"
         />
         {error !== '' && (
-          <Text size="sm" color={ERROR_COLOR}>
+          <Text size="sm" color={ERROR_COLOR} testID="login-error">
             {error}
           </Text>
         )}

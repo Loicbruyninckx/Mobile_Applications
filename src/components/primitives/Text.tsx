@@ -8,6 +8,7 @@ interface TextProps {
   color?: string;
   align?: 'left' | 'center' | 'right';
   numberOfLines?: number;
+  testID?: string;
 }
 
 export function Text({
@@ -17,6 +18,7 @@ export function Text({
   color,
   align = 'left',
   numberOfLines,
+  testID,
 }: TextProps) {
   return (
     <RNText
@@ -28,6 +30,7 @@ export function Text({
         color !== undefined && { color },
       ]}
       numberOfLines={numberOfLines}
+      testID={testID}
     >
       {children}
     </RNText>
