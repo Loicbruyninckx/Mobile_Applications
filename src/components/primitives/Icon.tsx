@@ -3,6 +3,9 @@ import { StyleSheet } from 'react-native';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
+/** Naam van een Ionicons-icoon, bv. 'home' of 'star-outline'. */
+export type IconName = IoniconsName;
+
 interface IconProps {
   name: IoniconsName;
   size?: number;

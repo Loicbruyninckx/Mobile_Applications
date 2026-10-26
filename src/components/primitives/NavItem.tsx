@@ -1,22 +1,44 @@
 import { Pressable, StyleSheet } from 'react-native';
+import { colors } from '../../theme/colors';
+import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
 
 interface NavItemProps {
   label: string;
   onPress: () => void;
   active?: boolean;
-  icon?: string;
+  icon?: IconName;
+  testID?: string;
 }
 
-export function NavItem({ label, onPress, active = false }: NavItemProps) {
+export function NavItem({ label, onPress, active = false, icon, testID }: NavItemProps) {
+  const color = active ? colors.primary : colors.textSecondary;
+
   return (
-    <Pressable onPress={onPress} style={[styles.base, active && styles.active]}>
-      <Text size="md" weight={active ? 'bold' : 'normal'}>{label}</Text>
+    <Pressable
+      onPress={onPress}
+      style={styles.base}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={label}
+      testID={testID}
+    >
+      {icon !== undefined && <Icon name={icon} size={24} color={color} />}
+      <Text size="sm" weight={active ? 'bold' : 'normal'} color={color} align="center" numberOfLines={1}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  base: {},
-  active: {},
+  // flex: 1 → alle tabs even breed; minHeight 56 → ruim boven de 48dp tikzone.
+  base: {
+    flex: 1,
+    minHeight: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 6,
+    gap: 2,
+  },
 });

@@ -7,3 +7,7 @@ type Story = StoryObj<typeof NavItem>;
 
 export const Default: Story = { args: { label: 'Home', onPress: () => {} } };
 export const Active: Story = { args: { label: 'Profile', onPress: () => {}, active: true } };
+export const WithIcon: Story = { args: { label: 'Groepen', icon: 'people-outline', onPress: () => {} } };
+export const WithIconActive: Story = {
+  args: { label: 'Home', icon: 'home', onPress: () => {}, active: true },
+};
