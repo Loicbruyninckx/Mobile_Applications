@@ -42,3 +42,9 @@ export interface NewRating {
   review?: string;
   photoUrl?: string;
 }
+
+/** Een rating samen met het bier en (als ingevuld) het café, voor lijsten zoals Mijn ratings. */
+export interface RatingWithDetails extends Rating {
+  beer: Beer;
+  cafe?: Cafe;
+}

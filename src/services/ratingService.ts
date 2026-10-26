@@ -5,13 +5,15 @@ import {
   CAFE_COLUMNS,
   RATING_COLUMNS,
   cleanSearchTerm,
+  readNestedRow,
+  type Row,
   toBeer,
   toCafe,
   toRating,
 } from './rowParsers';
 import type { Beer, NewBeer } from '../types/Beer';
 import type { Cafe, NewCafe } from '../types/Cafe';
-import type { NewRatingInput, Rating } from '../types/Rating';
+import type { NewRatingInput, Rating, RatingWithDetails } from '../types/Rating';
 
 const SEARCH_LIMIT = 8;
 /** Postgres-foutcode voor "bestaat al" (unique index). */
@@ -113,6 +115,35 @@ export async function createCafe(cafe: NewCafe): Promise<Cafe> {
     if (match !== undefined) return match;
   }
   throw saveError(error, 'Café toevoegen');
+}
+
+/**
+ * Al je eigen ratings, met bier en café erbij (nieuwste eerst).
+ * We filteren expliciet op jouw user_id: RLS laat ook ratings van groepsleden door.
+ */
+export async function getMyRatings(): Promise<RatingWithDetails[]> {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user.id;
+  if (userId === undefined) {
+    throw new Error('Je bent niet ingelogd.');
+  }
+
+  const { data, error } = await supabase
+    .from('ratings')
+    .select(`${RATING_COLUMNS}, beer:beers(${BEER_COLUMNS}), cafe:cafes(${CAFE_COLUMNS})`)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  if (error) {
+    throw new Error('Je ratings konden niet geladen worden. Controleer je internetverbinding.');
+  }
+
+  return data.flatMap((row: Row) => {
+    const beerRow = readNestedRow(row, 'beer');
+    // Elke rating heeft een bier (not null in SQL); zonder bier slaan we de rij over.
+    if (beerRow === undefined) return [];
+    const cafeRow = readNestedRow(row, 'cafe');
+    return [{ ...toRating(row), beer: toBeer(beerRow), cafe: cafeRow !== undefined ? toCafe(cafeRow) : undefined }];
+  });
 }
 
 /**

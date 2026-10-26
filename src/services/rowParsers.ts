@@ -85,6 +85,13 @@ export function toRating(row: Row): Rating {
   };
 }
 
+/** Leest een geneste rij (bv. `beer` uit een join). Undefined als die er niet is. */
+export function readNestedRow(row: Row, key: string): Row | undefined {
+  const value = row[key];
+  if (typeof value !== 'object' || !value || Array.isArray(value)) return undefined;
+  return Object.fromEntries(Object.entries(value));
+}
+
 /**
  * Maakt een zoekterm veilig voor een PostgREST-filter:
  * komma's en haakjes breken `.or(...)`, en % _ * zijn jokertekens.
