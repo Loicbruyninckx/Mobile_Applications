@@ -10,16 +10,17 @@ async function toAppUser(authUser: SupabaseUser): Promise<User> {
     .eq('id', authUser.id)
     .maybeSingle();
 
-  if (error) {
-    throw new Error('Je profiel kon niet geladen worden. Probeer opnieuw.');
-  }
+  // Offline (of profiel niet bereikbaar): de gebruikersnaam uit de bewaarde sessie gebruiken.
+  // Die werd bij het registreren meegegeven, zodat je offline ingelogd blijft.
+  const metadataName: unknown = authUser.user_metadata.username;
+  const fallbackName = typeof metadataName === 'string' ? metadataName : '';
 
   // Zonder gegenereerde database-types kent TypeScript de vorm van `data` niet: controleer zelf.
-  const username: unknown = data?.username;
+  const username: unknown = error ? undefined : data?.username;
   return {
     id: authUser.id,
     email: authUser.email ?? '',
-    username: typeof username === 'string' ? username : '',
+    username: typeof username === 'string' ? username : fallbackName,
   };
 }
 

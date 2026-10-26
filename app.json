@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "UCLL Mobile Starter",
-    "slug": "ucll-mobile-starter",
+    "name": "Bierapp",
+    "slug": "bierapp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "ucllstarter",
+    "icon": "./public/icon-512.png",
+    "scheme": "bierapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -12,16 +13,23 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./public/icon-512.png",
+        "backgroundColor": "#3B2314"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./public/icon-192.png",
+      "name": "Bierapp",
+      "shortName": "Bierapp",
+      "lang": "nl",
+      "themeColor": "#3B2314",
+      "backgroundColor": "#FBF7EF"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "typedRoutes": true
     }
