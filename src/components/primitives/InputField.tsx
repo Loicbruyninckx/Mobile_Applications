@@ -14,7 +14,7 @@ interface InputFieldProps {
   multiline?: boolean;
   maxLength?: number;
   keyboardType?: 'default' | 'email-address' | 'decimal-pad';
-  autoCapitalize?: 'none' | 'sentences' | 'words';
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
 }
 
 export function InputField({

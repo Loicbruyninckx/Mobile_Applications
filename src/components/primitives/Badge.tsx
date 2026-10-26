@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { Text } from './Text';
+import { colors } from '../../theme/colors';
 
 interface BadgeProps {
   label: string;
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   default: {
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border,
   },
   success: {
     backgroundColor: '#d1fae5',

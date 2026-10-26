@@ -12,6 +12,8 @@ interface ChoiceCardProps {
   icon?: IconName;
   /** Tekst rechts, bv. "Wijzig". */
   actionLabel?: string;
+  /** Icoon helemaal rechts, bv. 'chevron-forward' voor een kaart die naar een detail gaat. */
+  trailingIcon?: IconName;
   /** Donkere rand: dit item is gekozen. */
   selected?: boolean;
   onPress: () => void;
@@ -24,6 +26,7 @@ export function ChoiceCard({
   subtitle,
   icon,
   actionLabel,
+  trailingIcon,
   selected = false,
   onPress,
   testID,
@@ -52,6 +55,7 @@ export function ChoiceCard({
               {actionLabel}
             </Text>
           )}
+          {trailingIcon !== undefined && <Icon name={trailingIcon} size={20} color={colors.textSecondary} />}
         </Row>
       </View>
     </Card>

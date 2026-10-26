@@ -15,3 +15,8 @@ export interface NewGroup {
   name: string;
   photoUrl?: string;
 }
+
+/** Een groep met het aantal leden, voor de lijst "Mijn groepen". */
+export interface GroupWithMemberCount extends Group {
+  memberCount: number;
+}

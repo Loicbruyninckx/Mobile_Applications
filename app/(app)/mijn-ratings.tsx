@@ -7,7 +7,8 @@ import { Text } from '../../src/components/primitives/Text';
 import { EmptyState } from '../../src/components/primitives/EmptyState';
 import { InputField } from '../../src/components/primitives/InputField';
 import { StyledButton } from '../../src/components/StyledButton';
-import { RatingCard, RatingCardSkeleton } from '../../src/components/RatingCard';
+import { RatingCard } from '../../src/components/RatingCard';
+import { CardSkeleton } from '../../src/components/CardSkeleton';
 import { SegmentedControl, type SegmentOption } from '../../src/components/SegmentedControl';
 import { colors } from '../../src/theme/colors';
 import type { RatingWithDetails } from '../../src/types/Rating';
@@ -85,7 +86,7 @@ export default function MijnRatingsScreen() {
       return (
         <Stack gap="md">
           {Array.from({ length: SKELETON_COUNT }, (_, index) => (
-            <RatingCardSkeleton key={index} />
+            <CardSkeleton key={index} />
           ))}
         </Stack>
       );

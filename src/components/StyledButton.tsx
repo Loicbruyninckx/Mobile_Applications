@@ -6,7 +6,8 @@ import { Text } from './primitives/Text';
 interface StyledButtonProps {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  /** accent = amber met donkere tekst, voor één opvallende actie zoals "Kopieer". */
+  variant?: 'primary' | 'secondary' | 'accent';
   isLoading?: boolean;
   testID?: string;
 }
@@ -18,7 +19,7 @@ export function StyledButton({
   isLoading = false,
   testID,
 }: StyledButtonProps) {
-  const textColor = variant === 'primary' ? colors.card : colors.primary;
+  const textColor = variant === 'primary' ? colors.card : colors.primary;  // accent: altijd donkere tekst
 
   return (
     <Pressable
@@ -49,5 +50,6 @@ const styles = StyleSheet.create({
   },
   primary: { backgroundColor: colors.primary },
   secondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.inputBorder },
+  accent: { backgroundColor: colors.accent },
   disabled: { opacity: 0.7 },
 });

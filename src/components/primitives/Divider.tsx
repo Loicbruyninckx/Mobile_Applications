@@ -1,4 +1,5 @@
 import { View, StyleSheet } from 'react-native';
+import { colors } from '../../theme/colors';
 
 interface DividerProps {
   orientation?: 'horizontal' | 'vertical';
@@ -18,7 +19,7 @@ export function Divider({ orientation = 'horizontal', spacing = 'none' }: Divide
 }
 
 const styles = StyleSheet.create({
-  base: {},
+  base: { backgroundColor: colors.border },
   horizontal: { height: 1, width: '100%' },
   vertical: { width: 1, height: '100%' },
   spacing_none: {},

@@ -4,6 +4,6 @@ export type { Profile } from './Profile';
 export type { Beer, NewBeer } from './Beer';
 export type { Cafe, NewCafe } from './Cafe';
 export type { Rating, RatingWithDetails, NewRating, NewRatingInput, BeerChoice, CafeChoice, Score } from './Rating';
-export type { Group, NewGroup } from './Group';
-export type { GroupMember } from './GroupMember';
+export type { Group, GroupWithMemberCount, NewGroup } from './Group';
+export type { GroupMember, GroupMemberWithProfile } from './GroupMember';
 export type { RatingShare } from './RatingShare';

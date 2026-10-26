@@ -4,7 +4,6 @@ import type { RatingWithDetails } from '../types/Rating';
 import { Card } from './primitives/Card';
 import { Icon } from './primitives/Icon';
 import { Row } from './primitives/Row';
-import { Skeleton } from './primitives/Skeleton';
 import { Stack } from './primitives/Stack';
 import { Text } from './primitives/Text';
 import { StarDisplay } from './StarDisplay';
@@ -56,24 +55,6 @@ export function RatingCard({ rating, rank, testID }: RatingCardProps) {
           <Text numberOfLines={2}>“{rating.review}”</Text>
         )}
         <Text size="sm" color={colors.textSecondary}>{formatDate(rating.createdAt)}</Text>
-      </Stack>
-    </Card>
-  );
-}
-
-/** Grijze placeholder met dezelfde vorm als RatingCard, getoond tijdens het laden. */
-export function RatingCardSkeleton() {
-  return (
-    <Card>
-      <Stack gap="sm" padding="md">
-        <Row gap="md">
-          <Skeleton width={52} height={52} borderRadius={12} />
-          <Stack flex={1} gap="sm">
-            <Skeleton width="70%" height={18} />
-            <Skeleton width="45%" height={14} />
-          </Stack>
-        </Row>
-        <Skeleton width="30%" height={12} />
       </Stack>
     </Card>
   );
