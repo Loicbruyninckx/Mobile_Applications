@@ -48,3 +48,10 @@ export interface RatingWithDetails extends Rating {
   beer: Beer;
   cafe?: Cafe;
 }
+
+/** Een rating in de groepsfeed: met de naam van wie ze gaf en de groepen waarmee ze gedeeld is. */
+export interface FeedRating extends RatingWithDetails {
+  authorName: string;
+  /** Alleen groepen waar jij ook lid van bent. */
+  groupIds: string[];
+}

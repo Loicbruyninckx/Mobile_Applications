@@ -1,4 +1,5 @@
 import { colors } from '../theme/colors';
+import { formatDate } from '../utils/formatDate';
 import type { GroupMemberWithProfile } from '../types/GroupMember';
 import { Avatar } from './primitives/Avatar';
 import { Badge } from './primitives/Badge';
@@ -12,11 +13,6 @@ interface MemberRowProps {
   isMe: boolean;
 }
 
-function formatDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 /** Eén lid in de ledenlijst: avatar met initialen, naam en sinds wanneer lid. */
 export function MemberRow({ member, isCreator, isMe }: MemberRowProps) {

@@ -92,6 +92,15 @@ export function readNestedRow(row: Row, key: string): Row | undefined {
   return Object.fromEntries(Object.entries(value));
 }
 
+/** Leest een geneste lijst (bv. `rating_shares` uit een join). Leeg als die er niet is. */
+export function readNestedRows(row: Row, key: string): Row[] {
+  const value = row[key];
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item: unknown) =>
+    typeof item === 'object' && item ? [Object.fromEntries(Object.entries(item))] : [],
+  );
+}
+
 /**
  * Maakt een zoekterm veilig voor een PostgREST-filter:
  * komma's en haakjes breken `.or(...)`, en % _ * zijn jokertekens.

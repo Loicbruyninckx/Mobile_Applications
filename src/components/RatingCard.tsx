@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { colors } from '../theme/colors';
+import { formatDate } from '../utils/formatDate';
 import type { RatingWithDetails } from '../types/Rating';
 import { Card } from './primitives/Card';
 import { Icon } from './primitives/Icon';
@@ -21,11 +22,6 @@ function subtitle(rating: RatingWithDetails): string {
   return [rating.beer.style, cafe].filter((part) => part !== undefined).join(' · ');
 }
 
-function formatDate(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 /** Kaart voor één rating, naar het voorbeeld van ItemCard. Puur weergave, geen logica. */
 export function RatingCard({ rating, rank, testID }: RatingCardProps) {

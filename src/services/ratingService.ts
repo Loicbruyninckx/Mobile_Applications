@@ -6,6 +6,8 @@ import {
   RATING_COLUMNS,
   cleanSearchTerm,
   readNestedRow,
+  readNestedRows,
+  readString,
   type Row,
   toBeer,
   toCafe,
@@ -13,7 +15,7 @@ import {
 } from './rowParsers';
 import type { Beer, NewBeer } from '../types/Beer';
 import type { Cafe, NewCafe } from '../types/Cafe';
-import type { NewRatingInput, Rating, RatingWithDetails } from '../types/Rating';
+import type { FeedRating, NewRatingInput, Rating, RatingWithDetails } from '../types/Rating';
 
 const SEARCH_LIMIT = 8;
 /** Postgres-foutcode voor "bestaat al" (unique index). */
@@ -143,6 +145,45 @@ export async function getMyRatings(): Promise<RatingWithDetails[]> {
     if (beerRow === undefined) return [];
     const cafeRow = readNestedRow(row, 'cafe');
     return [{ ...toRating(row), beer: toBeer(beerRow), cafe: cafeRow !== undefined ? toCafe(cafeRow) : undefined }];
+  });
+}
+
+const FEED_LIMIT = 50;
+
+/**
+ * De groepsfeed: de recentste ratings die gedeeld zijn met minstens één van `groupIds`,
+ * met bier, café en de naam van wie ze gaf. Je eigen gedeelde ratings staan er ook in.
+ * `rating_shares!inner` = alleen ratings die echt gedeeld zijn met een van die groepen.
+ */
+export async function getGroupFeed(groupIds: string[]): Promise<FeedRating[]> {
+  if (groupIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('ratings')
+    .select(
+      `${RATING_COLUMNS}, beer:beers(${BEER_COLUMNS}), cafe:cafes(${CAFE_COLUMNS}), author:profiles(username), rating_shares!inner(group_id)`,
+    )
+    .in('rating_shares.group_id', groupIds)
+    .order('created_at', { ascending: false })
+    .limit(FEED_LIMIT);
+  if (error) {
+    throw new Error('De feed kon niet geladen worden. Controleer je internetverbinding.');
+  }
+
+  return data.flatMap((row: Row) => {
+    const beerRow = readNestedRow(row, 'beer');
+    if (beerRow === undefined) return [];
+    const cafeRow = readNestedRow(row, 'cafe');
+    const authorRow = readNestedRow(row, 'author');
+    return [
+      {
+        ...toRating(row),
+        beer: toBeer(beerRow),
+        cafe: cafeRow !== undefined ? toCafe(cafeRow) : undefined,
+        authorName: authorRow !== undefined ? readString(authorRow, 'username') : 'Onbekend',
+        groupIds: readNestedRows(row, 'rating_shares').map((share) => readString(share, 'group_id')),
+      },
+    ];
   });
 }
 
