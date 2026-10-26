@@ -1,31 +1,77 @@
 import { create } from 'zustand';
-import { login as loginService, logout as logoutService } from '../services/authService';
+import {
+  getCurrentUser,
+  login as loginService,
+  logout as logoutService,
+  onSignedOut,
+  register as registerService,
+} from '../services/authService';
 import type { User } from '../types/User';
 
 interface AuthState {
-  user: User | null;
+  /** De ingelogde gebruiker, of undefined als niemand ingelogd is. */
+  user?: User;
   isAuthenticated: boolean;
+  /** Bezig met inloggen, registreren of uitloggen. */
   isLoading: boolean;
+  /** True zodra we weten of er een bewaarde sessie is. Voor die tijd niet doorverwijzen. */
+  isInitialized: boolean;
+  init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+let stopListening: (() => void) | undefined;
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: undefined,
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false,
+
+  init: async () => {
+    if (get().isInitialized) return;
+
+    // Sessie verlopen of uitgelogd in een ander tabblad: store leegmaken.
+    stopListening?.();
+    stopListening = onSignedOut(() => set({ user: undefined, isAuthenticated: false }));
+
+    try {
+      const user = await getCurrentUser();
+      set({ user, isAuthenticated: user !== undefined, isInitialized: true });
+    } catch {
+      set({ user: undefined, isAuthenticated: false, isInitialized: true });
+    }
+  },
+
   login: async (email, password) => {
     set({ isLoading: true });
     try {
       const user = await loginService(email, password);
-      set({ user, isAuthenticated: true, isLoading: false });
-    } catch (error) {
+      set({ user, isAuthenticated: true });
+    } finally {
       set({ isLoading: false });
-      throw error;
     }
   },
+
+  register: async (email, password, username) => {
+    set({ isLoading: true });
+    try {
+      const user = await registerService(email, password, username);
+      set({ user, isAuthenticated: true });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   logout: async () => {
-    await logoutService();
-    set({ user: null, isAuthenticated: false });
+    set({ isLoading: true });
+    try {
+      await logoutService();
+      set({ user: undefined, isAuthenticated: false });
+    } finally {
+      set({ isLoading: false });
+    }
   },
 }));

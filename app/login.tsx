@@ -1,58 +1,100 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useAuthStore } from '../src/state/useAuthStore';
 import { InputField } from '../src/components/primitives/InputField';
-import { StyledButton } from '../src/components/StyledButton';
+import { Screen } from '../src/components/primitives/Screen';
 import { Stack } from '../src/components/primitives/Stack';
 import { Text } from '../src/components/primitives/Text';
+import { StyledButton } from '../src/components/StyledButton';
+
+type Mode = 'login' | 'register';
+
+const ERROR_COLOR = '#B3261E';
 
 export default function LoginScreen() {
+  const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuthStore();
+  const { login, register, isLoading, isAuthenticated } = useAuthStore();
 
-  const handleLogin = async () => {
+  // Al ingelogd (bv. sessie hersteld)? Dan meteen naar home.
+  if (isAuthenticated) return <Redirect href="/" />;
+
+  const isRegister = mode === 'register';
+
+  const switchMode = () => {
     setError('');
+    setMode(isRegister ? 'login' : 'register');
+  };
+
+  const handleSubmit = async () => {
+    setError('');
+    if (email.trim() === '' || password === '' || (isRegister && username.trim() === '')) {
+      setError('Vul alle velden in.');
+      return;
+    }
     try {
-      await login(email, password);
+      if (isRegister) {
+        await register(email, password, username);
+      } else {
+        await login(email, password);
+      }
       router.replace('/');
-    } catch {
-      setError('Login failed. Check your credentials.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Er ging iets mis. Probeer opnieuw.');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Stack gap="lg" padding="lg">
-        <Text size="xl" weight="bold" align="center">Welcome back</Text>
+    <Screen padding="lg">
+      <Stack gap="lg">
+        <Text size="xl" weight="bold" align="center">
+          {isRegister ? 'Account maken' : 'Welkom terug'}
+        </Text>
+        {isRegister && (
+          <InputField
+            label="Gebruikersnaam"
+            value={username}
+            onChangeText={setUsername}
+            placeholder="bv. loic"
+            testID="username-input"
+          />
+        )}
         <InputField
-          label="Email"
+          label="E-mail"
           value={email}
           onChangeText={setEmail}
-          placeholder="you@example.com"
+          placeholder="jij@voorbeeld.be"
           testID="email-input"
         />
         <InputField
-          label="Password"
+          label="Wachtwoord"
           value={password}
           onChangeText={setPassword}
+          placeholder={isRegister ? 'Minstens 6 tekens' : undefined}
           secureTextEntry
           testID="password-input"
-          error={error !== '' ? error : undefined}
+        />
+        {error !== '' && (
+          <Text size="sm" color={ERROR_COLOR}>
+            {error}
+          </Text>
+        )}
+        <StyledButton
+          label={isRegister ? 'Registreren' : 'Inloggen'}
+          onPress={handleSubmit}
+          isLoading={isLoading}
+          testID={isRegister ? 'register-button' : 'login-button'}
         />
         <StyledButton
-          label="Log in"
-          onPress={handleLogin}
-          isLoading={isLoading}
-          testID="login-button"
+          label={isRegister ? 'Ik heb al een account' : 'Nog geen account? Registreer'}
+          onPress={switchMode}
+          variant="secondary"
+          testID="switch-mode-button"
         />
       </Stack>
-    </View>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-});

@@ -13,7 +13,7 @@ export default function HomeScreen() {
     <Screen padding="lg">
       <Stack gap="lg">
         <Text size="xl" weight="bold">
-          {user !== null ? `Welcome, ${user.name}` : 'Welcome'}
+          {user !== undefined ? `Welkom, ${user.username}` : 'Welkom'}
         </Text>
         <Text>Your items will appear here once you connect Supabase.</Text>
         <Badge label={'Succes badge'} variant={"success"} />
@@ -21,7 +21,7 @@ export default function HomeScreen() {
           title="No items yet"
           description="Implement getItems() in your itemService to load data."
         />
-        <StyledButton label="Log out" onPress={logout} variant="secondary" />
+        <StyledButton label="Uitloggen" onPress={logout} variant="secondary" testID="logout-button" />
       </Stack>
     </Screen>
   );
