@@ -26,5 +26,5 @@ export function Skeleton({ width = '100%', height = 16, borderRadius = 4 }: Skel
 }
 
 const styles = StyleSheet.create({
-  base: { backgroundColor: colors.border },
+  base: { backgroundColor: colors.surfaceRaised },
 });

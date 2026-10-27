@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { addRating, RatingShareError, searchBeers, searchCafes } from '../../src/services/ratingService';
 import { getMyGroups } from '../../src/services/groupService';
 import { useSearch } from '../../src/hooks/useSearch';
@@ -11,7 +11,8 @@ import { Card } from '../../src/components/primitives/Card';
 import { InputField } from '../../src/components/primitives/InputField';
 import { Toast } from '../../src/components/primitives/Toast';
 import { StyledButton } from '../../src/components/StyledButton';
-import { StarRating } from '../../src/components/StarRating';
+import { SCORE_LABELS, StarRating } from '../../src/components/StarRating';
+import { ScreenHeader } from '../../src/components/ScreenHeader';
 import { ChoiceCard } from '../../src/components/ChoiceCard';
 import { ChoiceChip } from '../../src/components/ChoiceChip';
 import { SearchPicker } from '../../src/components/SearchPicker';
@@ -163,6 +164,12 @@ export default function ToevoegenScreen() {
     setError(undefined);
   };
 
+  /** Kruisje: formulier leegmaken en terug naar Home. */
+  const handleClose = () => {
+    resetForm();
+    router.navigate('/');
+  };
+
   const handleSave = async () => {
     setError(undefined);
     if (beerChoice === undefined) {
@@ -202,26 +209,28 @@ export default function ToevoegenScreen() {
     <Stack flex={1}>
       <Screen padding="lg">
         <Stack gap="lg">
-          <Text size="xl" weight="bold" color={colors.primary}>Bier raten</Text>
+          <Stack gap="md">
+            <ScreenHeader title="Nieuwe rating" onButtonPress={handleClose} buttonLabel="Sluiten" testID="rating-close" />
+            <Text size="xxl" weight="bold">
+              Wat drink <Text size="xxl" weight="bold" color={colors.accent}>je?</Text>
+            </Text>
+          </Stack>
 
           {/* 1. Welk bier? */}
           {beerChoice !== undefined ? (
-            <Stack gap="sm">
-              <Text weight="medium">Welk bier?</Text>
-              <ChoiceCard
-                title={beerChoice.beer.name}
-                subtitle={beerSubtitle(beerChoice.beer) ?? (beerChoice.kind === 'new' ? 'Nieuw bier' : undefined)}
-                icon="beer-outline"
-                actionLabel="Wijzig"
-                selected
-                onPress={() => setBeerChoice(undefined)}
-                testID="beer-selected"
-              />
-            </Stack>
+            <ChoiceCard
+              title={beerChoice.beer.name}
+              subtitle={beerSubtitle(beerChoice.beer) ?? (beerChoice.kind === 'new' ? 'Nieuw bier' : undefined)}
+              icon="beer-outline"
+              actionLabel="Wijzig"
+              selected
+              onPress={() => setBeerChoice(undefined)}
+              testID="beer-selected"
+            />
           ) : beerForm !== undefined ? (
             <Card highlighted>
               <Stack gap="md" padding="md">
-                <Text size="lg" weight="bold">Nieuw bier</Text>
+                <Text size="lg" weight="bold" font="display">Nieuw bier</Text>
                 <InputField
                   label="Naam"
                   value={beerForm.name}
@@ -273,7 +282,7 @@ export default function ToevoegenScreen() {
           ) : (
             <SearchPicker
               label="Welk bier?"
-              placeholder="Zoek op naam of brouwerij…"
+              placeholder="Zoek bier of brouwerij…"
               query={beerQuery}
               onQueryChange={setBeerQuery}
               results={beerSearch.results.map((beer) => ({
@@ -284,6 +293,7 @@ export default function ToevoegenScreen() {
               isSearching={beerSearch.isSearching}
               error={beerSearch.error}
               icon="beer-outline"
+              inputIcon="search"
               onSelect={selectBeer}
               addLabel="Nieuw bier toevoegen"
               onAdd={() => setBeerForm({ name: beerQuery.trim(), brewery: '', style: '', abv: '' })}
@@ -293,16 +303,22 @@ export default function ToevoegenScreen() {
 
           {/* 2. Score */}
           <Stack gap="sm">
-            <Text weight="medium">Score</Text>
+            <Row justify="space-between">
+              <Text size="lg" weight="medium" color={colors.textSecondary}>Jouw score</Text>
+              {score !== undefined && (
+                <Text size="lg" weight="bold" color={colors.accent}>{score}/5 · {SCORE_LABELS[score]}</Text>
+              )}
+            </Row>
             <StarRating value={score} onChange={setScore} testID="star" />
           </Stack>
 
           {/* 3. Review (foto komt in de native app) */}
           <InputField
             label="Review (optioneel)"
+            showLabel={false}
             value={review}
             onChangeText={setReview}
-            placeholder="Wat vond je ervan?"
+            placeholder="Hoe smaakt hij? (optioneel)"
             multiline
             maxLength={REVIEW_MAX}
             autoCapitalize="sentences"
@@ -311,22 +327,19 @@ export default function ToevoegenScreen() {
 
           {/* 4. Café */}
           {cafeChoice !== undefined ? (
-            <Stack gap="sm">
-              <Text weight="medium">Café (optioneel)</Text>
-              <ChoiceCard
-                title={cafeChoice.cafe.name}
-                subtitle={cafeChoice.cafe.city}
-                icon="location-outline"
-                actionLabel="Wijzig"
-                selected
-                onPress={() => setCafeChoice(undefined)}
-                testID="cafe-selected"
-              />
-            </Stack>
+            <ChoiceCard
+              title={cafeChoice.cafe.name}
+              subtitle={cafeChoice.cafe.city}
+              icon="location-outline"
+              actionLabel="Wijzig"
+              selected
+              onPress={() => setCafeChoice(undefined)}
+              testID="cafe-selected"
+            />
           ) : cafeForm !== undefined ? (
             <Card highlighted>
               <Stack gap="md" padding="md">
-                <Text size="lg" weight="bold">Nieuw café</Text>
+                <Text size="lg" weight="bold" font="display">Nieuw café</Text>
                 <InputField
                   label="Naam"
                   value={cafeForm.name}
@@ -357,7 +370,7 @@ export default function ToevoegenScreen() {
           ) : (
             <SearchPicker
               label="Café (optioneel)"
-              placeholder="Waar drink je het?"
+              placeholder="In welk café?"
               query={cafeQuery}
               onQueryChange={setCafeQuery}
               results={cafeSearch.results.map((cafe) => ({
@@ -368,6 +381,7 @@ export default function ToevoegenScreen() {
               isSearching={cafeSearch.isSearching}
               error={cafeSearch.error}
               icon="location-outline"
+              inputIcon="location-outline"
               onSelect={selectCafe}
               addLabel="Nieuw café toevoegen"
               onAdd={() => setCafeForm({ name: cafeQuery.trim(), city: '' })}
@@ -376,38 +390,36 @@ export default function ToevoegenScreen() {
           )}
 
           {/* 5. Delen met */}
-          <Stack gap="sm">
-            <Text weight="medium">Delen met</Text>
-            {groups.length === 0 ? (
-              <Text color={colors.textSecondary}>
-                Je zit nog in geen groep. Deze rating is alleen voor jou zichtbaar.
-              </Text>
-            ) : (
-              <Row gap="sm" wrap>
-                {groups.map((group) => (
-                  <ChoiceChip
-                    key={group.id}
-                    label={group.name}
-                    selected={!unselectedGroupIds.includes(group.id)}
-                    onPress={() => toggleGroup(group.id)}
-                    testID={`group-chip-${group.id}`}
-                  />
-                ))}
-              </Row>
-            )}
-          </Stack>
+          {groups.length === 0 ? (
+            <Text color={colors.textSecondary}>
+              Je zit nog in geen groep. Deze rating is alleen voor jou zichtbaar.
+            </Text>
+          ) : (
+            <Row gap="sm" wrap>
+              <Text size="lg" weight="medium" color={colors.textSecondary}>Deel met</Text>
+              {groups.map((group) => (
+                <ChoiceChip
+                  key={group.id}
+                  label={group.name}
+                  selected={!unselectedGroupIds.includes(group.id)}
+                  onPress={() => toggleGroup(group.id)}
+                  testID={`group-chip-${group.id}`}
+                />
+              ))}
+            </Row>
+          )}
         </Stack>
       </Screen>
 
       {/* Opslaan-knop altijd onderaan, bereikbaar met je duim. De foutmelding staat er
           vlak boven, zodat je ze ziet waar je ook gescrolld bent. */}
-      <Stack padding="md" gap="sm">
+      <Stack padding="lg" gap="sm">
         {error !== undefined && (
           <Text color={colors.error} weight="medium" align="center" testID="rating-error">
             {error}
           </Text>
         )}
-        <StyledButton label="Rating opslaan" onPress={handleSave} isLoading={isSaving} testID="save-rating-button" />
+        <StyledButton label="Post rating" onPress={handleSave} isLoading={isSaving} size="lg" testID="save-rating-button" />
       </Stack>
 
       <Toast

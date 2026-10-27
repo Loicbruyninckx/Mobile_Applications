@@ -7,24 +7,29 @@ interface ChoiceChipProps {
   label: string;
   selected: boolean;
   onPress: () => void;
+  /**
+   * light = gekozen chip wordt wit met een vinkje (aan/uit, bv. "Deel met"),
+   * accent = gekozen chip wordt limegroen (één keuze uit een rij, bv. een filter).
+   */
+  variant?: 'light' | 'accent';
   testID?: string;
 }
 
 /** Ronde aan/uit-knop, bv. om te kiezen met welke groepen je deelt. */
-export function ChoiceChip({ label, selected, onPress, testID }: ChoiceChipProps) {
-  const color = selected ? colors.card : colors.text;
+export function ChoiceChip({ label, selected, onPress, variant = 'light', testID }: ChoiceChipProps) {
+  const color = selected ? colors.onAccent : colors.text;
 
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.base, selected ? styles.selected : styles.unselected]}
+      style={[styles.base, selected ? styles[variant] : styles.unselected]}
       role="checkbox"
       aria-checked={selected}
       accessibilityLabel={label}
       testID={testID}
     >
-      {selected && <Icon name="checkmark" size={18} color={color} />}
-      <Text size="lg" color={color}>{label}</Text>
+      {selected && variant === 'light' && <Icon name="checkmark" size={18} color={color} />}
+      <Text size="lg" weight="bold" font="display" color={color}>{label}</Text>
     </Pressable>
   );
 }
@@ -35,10 +40,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     minHeight: 48,
-    paddingHorizontal: 18,
-    borderRadius: 24,
+    paddingHorizontal: 20,
+    borderRadius: 999,
     borderWidth: 1,
   },
-  selected: { backgroundColor: colors.primary, borderColor: colors.primary },
-  unselected: { backgroundColor: colors.card, borderColor: colors.inputBorder },
+  light: { backgroundColor: colors.text, borderColor: colors.text },
+  accent: { backgroundColor: colors.accent, borderColor: colors.accent },
+  unselected: { backgroundColor: 'transparent', borderColor: colors.border },
 });

@@ -8,6 +8,7 @@ import { Stack } from '../../src/components/primitives/Stack';
 import { Row } from '../../src/components/primitives/Row';
 import { Text } from '../../src/components/primitives/Text';
 import { EmptyState } from '../../src/components/primitives/EmptyState';
+import { Avatar } from '../../src/components/primitives/Avatar';
 import { StyledButton } from '../../src/components/StyledButton';
 import { ChoiceChip } from '../../src/components/ChoiceChip';
 import { FeedCard } from '../../src/components/FeedCard';
@@ -26,6 +27,7 @@ interface FeedData {
 
 export default function HomeScreen() {
   const myUserId = useAuthStore((state) => state.user?.id);
+  const myName = useAuthStore((state) => state.user?.username);
   // undefined = nog nooit geladen → skeletons tonen.
   const [feed, setFeed] = useState<FeedData | undefined>();
   const [error, setError] = useState<string | undefined>();
@@ -125,16 +127,29 @@ export default function HomeScreen() {
   return (
     <Screen padding="lg">
       <Stack gap="lg">
-        <Text size="xl" weight="bold" color={colors.primary}>Home</Text>
+        <Row justify="space-between">
+          <Stack flex={1}>
+            {myName !== undefined && <Text size="lg" color={colors.textSecondary}>Hey {myName}</Text>}
+            <Text size="xl" weight="bold">Je crew drinkt</Text>
+          </Stack>
+          <Avatar name={myName} size="lg" ring />
+        </Row>
 
-        {/* Filter per groep: alleen zinvol vanaf 2 groepen. */}
+        {/* Filter per groep: alleen zinvol vanaf 2 groepen. Scrollt opzij als het niet past. */}
         {feed !== undefined && feed.groups.length > 1 && (
-          <Row gap="sm" wrap>
-            <ChoiceChip label="Alle groepen" selected={filter === 'all'} onPress={() => setFilter('all')} testID="feed-filter-all" />
+          <Row gap="sm" scroll>
+            <ChoiceChip
+              label="Alles"
+              variant="accent"
+              selected={filter === 'all'}
+              onPress={() => setFilter('all')}
+              testID="feed-filter-all"
+            />
             {feed.groups.map((group) => (
               <ChoiceChip
                 key={group.id}
                 label={group.name}
+                variant="accent"
                 selected={filter === group.id}
                 onPress={() => setFilter(group.id)}
                 testID={`feed-filter-${group.id}`}

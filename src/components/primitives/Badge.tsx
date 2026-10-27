@@ -7,10 +7,17 @@ interface BadgeProps {
   variant?: 'default' | 'success' | 'warning' | 'error';
 }
 
+const TEXT_COLORS = {
+  default: colors.onAccent,
+  success: colors.onAccent,
+  warning: colors.onAccent,
+  error: colors.text,
+};
+
 export function Badge({ label, variant = 'default' }: BadgeProps) {
   return (
     <View style={[styles.base, styles[variant]]}>
-      <Text size="sm">{label}</Text>
+      <Text size="sm" weight="bold" color={TEXT_COLORS[variant]}>{label}</Text>
     </View>
   );
 }
@@ -18,20 +25,12 @@ export function Badge({ label, variant = 'default' }: BadgeProps) {
 const styles = StyleSheet.create({
   base: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 999,
   },
-  default: {
-    backgroundColor: colors.border,
-  },
-  success: {
-    backgroundColor: '#d1fae5',
-  },
-  warning: {
-    backgroundColor: '#fef3c7',
-  },
-  error: {
-    backgroundColor: '#fee2e2',
-  },
+  default: { backgroundColor: colors.accent },
+  success: { backgroundColor: colors.success },
+  warning: { backgroundColor: '#FFC94D' },
+  error: { backgroundColor: colors.error },
 });

@@ -1,8 +1,10 @@
 import { useAuthStore } from '../../src/state/useAuthStore';
+import { Avatar } from '../../src/components/primitives/Avatar';
+import { Card } from '../../src/components/primitives/Card';
 import { Screen } from '../../src/components/primitives/Screen';
 import { Stack } from '../../src/components/primitives/Stack';
 import { Text } from '../../src/components/primitives/Text';
-import { StyledButton } from '../../src/components/StyledButton';
+import { MenuRow } from '../../src/components/MenuRow';
 import { colors } from '../../src/theme/colors';
 
 export default function ProfielScreen() {
@@ -11,20 +13,18 @@ export default function ProfielScreen() {
   return (
     <Screen padding="lg">
       <Stack gap="lg">
-        <Text size="xl" weight="bold">Profiel</Text>
         {user !== undefined && (
-          <Stack gap="sm">
-            <Text size="lg" weight="bold">{user.username}</Text>
-            <Text color={colors.textSecondary}>{user.email}</Text>
+          <Stack gap="md" align="center">
+            <Avatar name={user.username} size="xl" ring />
+            <Stack align="center">
+              <Text size="xl" weight="bold" align="center">{user.username}</Text>
+              <Text size="lg" color={colors.textSecondary} align="center">{user.email}</Text>
+            </Stack>
           </Stack>
         )}
-        <StyledButton
-          label="Uitloggen"
-          onPress={logout}
-          isLoading={isLoading}
-          variant="secondary"
-          testID="logout-button"
-        />
+        <Card>
+          <MenuRow label="Uitloggen" onPress={logout} isLoading={isLoading} danger testID="logout-button" />
+        </Card>
       </Stack>
     </Screen>
   );

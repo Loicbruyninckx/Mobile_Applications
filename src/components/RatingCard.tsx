@@ -3,6 +3,7 @@ import { colors } from '../theme/colors';
 import { formatDate } from '../utils/formatDate';
 import type { RatingWithDetails } from '../types/Rating';
 import { Card } from './primitives/Card';
+import { Divider } from './primitives/Divider';
 import { Icon } from './primitives/Icon';
 import { Row } from './primitives/Row';
 import { Stack } from './primitives/Stack';
@@ -13,65 +14,88 @@ interface RatingCardProps {
   rating: RatingWithDetails;
   /** Plaats in de lijst (1 = bovenaan). Laat weg om geen nummer te tonen. */
   rank?: number;
+  /** hero = grote kaart voor je #1, row = lijstregel met een lijn eronder. */
+  variant?: 'hero' | 'row';
+  /** Toont de datum, bv. als de lijst op datum gesorteerd is. */
+  showDate?: boolean;
   testID?: string;
 }
 
 /** "Tripel · De Kroon, Leuven" — lege delen worden overgeslagen. */
-function subtitle(rating: RatingWithDetails): string {
+function subtitle(rating: RatingWithDetails, showDate: boolean): string {
   const cafe = rating.cafe !== undefined ? `${rating.cafe.name}, ${rating.cafe.city}` : undefined;
-  return [rating.beer.style, cafe].filter((part) => part !== undefined).join(' · ');
+  const date = showDate ? formatDate(rating.createdAt) : undefined;
+  return [rating.beer.style, cafe, date].filter((part) => part !== undefined).join(' · ');
 }
 
+/** Eén rating in Mijn ratings: als grote #1-kaart of als lijstregel. Puur weergave, geen logica. */
+export function RatingCard({ rating, rank, variant = 'row', showDate = false, testID }: RatingCardProps) {
+  const details = subtitle(rating, showDate);
+  const childID = (suffix: string) => (testID !== undefined ? `${testID}-${suffix}` : undefined);
 
-/** Kaart voor één rating, naar het voorbeeld van ItemCard. Puur weergave, geen logica. */
-export function RatingCard({ rating, rank, testID }: RatingCardProps) {
-  const details = subtitle(rating);
+  const beerName = (
+    <Text size={variant === 'hero' ? 'xl' : 'lg'} weight="bold" font="display" numberOfLines={variant === 'hero' ? 2 : 1} testID={childID('beer-name')}>
+      {rating.beer.name}
+    </Text>
+  );
+  const detailsText = details !== '' && <Text color={colors.textSecondary} numberOfLines={1}>{details}</Text>;
+  const review = rating.review !== undefined && (
+    <Text color={colors.textSecondary} numberOfLines={2} testID={childID('review')}>
+      “{rating.review}”
+    </Text>
+  );
+
+  if (variant === 'hero') {
+    return (
+      <Card variant="raised" testID={testID}>
+        <Stack padding="lg" gap="lg">
+          <Row justify="space-between" align="flex-start">
+            <Text size="xxl" weight="bold" color={colors.accent}>#{rank ?? 1}</Text>
+            <StarDisplay score={rating.score} testID={childID('stars')} />
+          </Row>
+          <Stack>
+            {beerName}
+            {detailsText}
+            {review}
+          </Stack>
+        </Stack>
+      </Card>
+    );
+  }
 
   return (
-    <Card testID={testID}>
-      <Stack gap="sm" padding="md">
+    <Stack testID={testID}>
+      <View style={styles.row}>
         <Row gap="md">
           {rank !== undefined && (
-            <Text size="lg" weight="bold" color={colors.textSecondary}>#{rank}</Text>
+            <View style={styles.rank}>
+              <Text size="xl" weight="bold" color={colors.textMuted}>{rank}</Text>
+            </View>
           )}
-          <View style={styles.iconBox}>
-            <Icon name="beer-outline" size={24} color={colors.primary} />
+          <View style={styles.thumb}>
+            <Icon name="beer-outline" size={24} color={colors.textSecondary} />
           </View>
           <Stack flex={1}>
-            <Text
-              size="lg"
-              weight="bold"
-              color={colors.primary}
-              numberOfLines={1}
-              testID={testID !== undefined ? `${testID}-beer-name` : undefined}
-            >
-              {rating.beer.name}
-            </Text>
-            {details !== '' && (
-              <Text color={colors.textSecondary} numberOfLines={1}>{details}</Text>
-            )}
+            {beerName}
+            {detailsText}
+            {review}
           </Stack>
-          <StarDisplay score={rating.score} testID={testID !== undefined ? `${testID}-stars` : undefined} />
+          <StarDisplay score={rating.score} variant="plain" testID={childID('stars')} />
         </Row>
-        {rating.review !== undefined && (
-          <Text numberOfLines={2} testID={testID !== undefined ? `${testID}-review` : undefined}>
-            “{rating.review}”
-          </Text>
-        )}
-        <Text size="sm" color={colors.textSecondary}>{formatDate(rating.createdAt)}</Text>
-      </Stack>
-    </Card>
+      </View>
+      <Divider />
+    </Stack>
   );
 }
 
 const styles = StyleSheet.create({
-  iconBox: {
+  row: { paddingVertical: 16 },
+  rank: { width: 32 },
+  thumb: {
     width: 52,
     height: 52,
-    borderRadius: 12,
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: 16,
+    backgroundColor: colors.surfaceRaised,
     alignItems: 'center',
     justifyContent: 'center',
   },

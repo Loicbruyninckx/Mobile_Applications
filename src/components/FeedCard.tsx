@@ -17,39 +17,36 @@ interface FeedCardProps {
   testID?: string;
 }
 
-/** "Tripel · @ De Kroon, Leuven" — lege delen worden overgeslagen. */
-function details(rating: FeedRating): string {
+/** "@ De Kroon, Leuven · Tripelaars" — lege delen worden overgeslagen. */
+function details(rating: FeedRating, groupLabel?: string): string {
   const cafe = rating.cafe !== undefined ? `@ ${rating.cafe.name}, ${rating.cafe.city}` : undefined;
-  return [rating.beer.style, cafe].filter((part) => part !== undefined).join(' · ');
+  return [rating.beer.style, cafe, groupLabel].filter((part) => part !== undefined && part !== '').join(' · ');
 }
 
-/** Eén rating in de groepsfeed: wie, wanneer, in welke groep, score, bier, café en review. */
+/** Eén rating in de groepsfeed: wie, wanneer, score, bier, café, groep en review. */
 export function FeedCard({ rating, groupLabel, isMine = false, testID }: FeedCardProps) {
-  const meta = [formatTimeAgo(rating.createdAt), groupLabel].filter((part) => part !== undefined && part !== '').join(' · ');
-  const beerDetails = details(rating);
+  const beerDetails = details(rating, groupLabel);
 
   return (
     <Card testID={testID}>
-      <Stack gap="md" padding="md">
-        <Row gap="md">
+      <Stack padding="lg">
+        <Row gap="md" align="flex-start">
           <Avatar name={rating.authorName} size="md" />
-          <Stack flex={1}>
-            <Text size="lg" weight="bold" numberOfLines={1}>
-              {isMine ? 'Jij' : rating.authorName}
+          <Stack flex={1} gap="none">
+            <Text color={colors.textSecondary} numberOfLines={1}>
+              <Text weight="bold">{isMine ? 'Jij' : rating.authorName}</Text>
+              {` · ${formatTimeAgo(rating.createdAt)}`}
             </Text>
-            <Text size="sm" color={colors.textSecondary} numberOfLines={1}>{meta}</Text>
+            <Text size="lg" weight="bold" font="display" testID={testID !== undefined ? `${testID}-beer-name` : undefined}>
+              {rating.beer.name}
+            </Text>
+            {beerDetails !== '' && <Text color={colors.textSecondary}>{beerDetails}</Text>}
+            {rating.review !== undefined && (
+              <Text testID={testID !== undefined ? `${testID}-review` : undefined}>“{rating.review}”</Text>
+            )}
           </Stack>
           <StarDisplay score={rating.score} testID={testID !== undefined ? `${testID}-stars` : undefined} />
         </Row>
-        <Stack gap="sm">
-          <Text size="lg" weight="bold" color={colors.primary} testID={testID !== undefined ? `${testID}-beer-name` : undefined}>
-            {rating.beer.name}
-          </Text>
-          {beerDetails !== '' && <Text color={colors.textSecondary}>{beerDetails}</Text>}
-          {rating.review !== undefined && (
-            <Text testID={testID !== undefined ? `${testID}-review` : undefined}>“{rating.review}”</Text>
-          )}
-        </Stack>
       </Stack>
     </Card>
   );

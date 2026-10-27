@@ -4,13 +4,14 @@ import { getMyRatings } from '../../src/services/ratingService';
 import { Screen } from '../../src/components/primitives/Screen';
 import { Stack } from '../../src/components/primitives/Stack';
 import { Text } from '../../src/components/primitives/Text';
+import { Row } from '../../src/components/primitives/Row';
+import { Tag } from '../../src/components/primitives/Tag';
 import { EmptyState } from '../../src/components/primitives/EmptyState';
 import { InputField } from '../../src/components/primitives/InputField';
 import { StyledButton } from '../../src/components/StyledButton';
 import { RatingCard } from '../../src/components/RatingCard';
 import { CardSkeleton } from '../../src/components/CardSkeleton';
 import { SegmentedControl, type SegmentOption } from '../../src/components/SegmentedControl';
-import { colors } from '../../src/theme/colors';
 import type { RatingWithDetails } from '../../src/types/Rating';
 
 type SortOrder = 'score' | 'recent';
@@ -108,13 +109,17 @@ export default function MijnRatingsScreen() {
       return <EmptyState title="Geen resultaten" description={`Niets gevonden voor “${query.trim()}”.`} />;
     }
 
+    // Op score gesorteerd: je #1 krijgt een grote kaart, de rest een genummerde lijst.
+    const byScoreOrder = sortOrder === 'score';
     return (
-      <Stack gap="md">
+      <Stack>
         {visibleRatings.map((rating, index) => (
           <RatingCard
             key={rating.id}
             rating={rating}
-            rank={sortOrder === 'score' ? index + 1 : undefined}
+            rank={byScoreOrder ? index + 1 : undefined}
+            variant={byScoreOrder && index === 0 ? 'hero' : 'row'}
+            showDate={!byScoreOrder}
             testID="rating-card"
           />
         ))}
@@ -125,17 +130,25 @@ export default function MijnRatingsScreen() {
   return (
     <Screen padding="lg">
       <Stack gap="lg">
-        <Text size="xl" weight="bold" color={colors.primary}>Mijn ratings</Text>
+        <Row justify="space-between" gap="md">
+          <Text size="xl" weight="bold">Mijn top</Text>
+          {ratings !== undefined && ratings.length > 0 && (
+            <Tag label={ratings.length === 1 ? '1 bier' : `${ratings.length} bieren`} />
+          )}
+        </Row>
         {ratings !== undefined && ratings.length > 0 && (
           <Stack gap="md">
+            <SegmentedControl options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} testID="ratings-sort" />
             <InputField
               label="Zoeken"
+              showLabel={false}
+              variant="pill"
+              icon="search"
               value={query}
               onChangeText={setQuery}
               placeholder="Zoek in je ratings…"
               testID="ratings-search"
             />
-            <SegmentedControl options={SORT_OPTIONS} value={sortOrder} onChange={setSortOrder} testID="ratings-sort" />
           </Stack>
         )}
         {renderContent()}

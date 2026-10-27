@@ -18,13 +18,18 @@ interface TabConfig {
   label: string;
   icon: IconName;
   activeIcon: IconName;
+  /** fab = de grote ronde knop in het midden. */
+  variant?: 'default' | 'fab';
 }
 
-/** Volgorde en inhoud van de tabbalk. Andere routes (bv. details/[id]) krijgen geen tab. */
+/**
+ * Volgorde en inhoud van de tabbalk. Andere routes (bv. details/[id]) krijgen geen tab.
+ * Bier raten staat in het midden als grote knop: de belangrijkste actie, bereikbaar met je duim.
+ */
 const TABS: TabConfig[] = [
   { name: 'index', label: 'Home', icon: 'home-outline', activeIcon: 'home' },
-  { name: 'toevoegen', label: 'Toevoegen', icon: 'add-circle-outline', activeIcon: 'add-circle' },
-  { name: 'mijn-ratings', label: 'Mijn ratings', icon: 'star-outline', activeIcon: 'star' },
+  { name: 'mijn-ratings', label: 'Ratings', icon: 'star-outline', activeIcon: 'star' },
+  { name: 'toevoegen', label: 'Bier raten', icon: 'add', activeIcon: 'add', variant: 'fab' },
   { name: 'groepen', label: 'Groepen', icon: 'people-outline', activeIcon: 'people' },
   { name: 'profiel', label: 'Profiel', icon: 'person-outline', activeIcon: 'person' },
 ];
@@ -43,6 +48,7 @@ function TabBar({ state, navigation }: TabBarProps) {
             label={tab.label}
             icon={active ? tab.activeIcon : tab.icon}
             active={active}
+            variant={tab.variant}
             onPress={() => navigation.navigate(tab.name)}
             testID={`tab-${tab.name}`}
           />
@@ -60,7 +66,7 @@ export default function AppLayout() {
   if (!isInitialized) {
     return (
       <Screen padding="lg">
-        <Spinner />
+        <Spinner color={colors.accent} />
       </Screen>
     );
   }

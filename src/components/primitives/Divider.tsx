@@ -6,24 +6,18 @@ interface DividerProps {
   spacing?: 'none' | 'sm' | 'md' | 'lg';
 }
 
+const SPACING = { none: 0, sm: 8, md: 16, lg: 24 };
+
 export function Divider({ orientation = 'horizontal', spacing = 'none' }: DividerProps) {
-  return (
-    <View
-      style={[
-        styles.base,
-        orientation === 'horizontal' ? styles.horizontal : styles.vertical,
-        styles[`spacing_${spacing}` as keyof typeof styles],
-      ]}
-    />
-  );
+  const isHorizontal = orientation === 'horizontal';
+  // Ruimte boven en onder (horizontaal) of links en rechts (verticaal) van de lijn.
+  const margin = isHorizontal ? { marginVertical: SPACING[spacing] } : { marginHorizontal: SPACING[spacing] };
+
+  return <View style={[styles.base, isHorizontal ? styles.horizontal : styles.vertical, margin]} />;
 }
 
 const styles = StyleSheet.create({
   base: { backgroundColor: colors.border },
   horizontal: { height: 1, width: '100%' },
   vertical: { width: 1, height: '100%' },
-  spacing_none: {},
-  spacing_sm: {},
-  spacing_md: {},
-  spacing_lg: {},
 });

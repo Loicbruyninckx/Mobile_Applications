@@ -14,17 +14,16 @@ interface MemberRowProps {
   testID?: string;
 }
 
-
 /** Eén lid in de ledenlijst: avatar met initialen, naam en sinds wanneer lid. */
 export function MemberRow({ member, isCreator, isMe, testID }: MemberRowProps) {
   return (
     <Row gap="md">
-      <Avatar name={member.username} size="md" />
+      <Avatar name={member.username} size="md" ring={isMe} />
       <Stack flex={1}>
-        <Text size="lg" weight="bold" color={colors.primary} numberOfLines={1} testID={testID}>
+        <Text size="lg" weight="bold" font="display" numberOfLines={1} testID={testID}>
           {isMe ? `${member.username} (jij)` : member.username}
         </Text>
-        <Text size="sm" color={colors.textSecondary}>Lid sinds {formatDate(member.joinedAt)}</Text>
+        <Text color={colors.textSecondary}>Lid sinds {formatDate(member.joinedAt)}</Text>
       </Stack>
       {isCreator && <Badge label="Maker" />}
     </Row>

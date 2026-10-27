@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./public/icon-512.png",
     "scheme": "bierapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
@@ -14,7 +14,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./public/icon-512.png",
-        "backgroundColor": "#3B2314"
+        "backgroundColor": "#0B0B0B"
       }
     },
     "web": {
@@ -24,8 +24,8 @@
       "name": "Bierapp",
       "shortName": "Bierapp",
       "lang": "nl",
-      "themeColor": "#3B2314",
-      "backgroundColor": "#FBF7EF"
+      "themeColor": "#0B0B0B",
+      "backgroundColor": "#0B0B0B"
     },
     "plugins": [
       "expo-router",

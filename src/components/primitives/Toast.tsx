@@ -15,7 +15,8 @@ export function Toast({ message, variant = 'default', visible, testID }: ToastPr
 
   return (
     <View style={[styles.base, styles[variant]]} accessibilityRole="alert" testID={testID}>
-      <Text weight="medium" color={colors.card}>{message}</Text>
+      {/* Alle varianten hebben een lichte achtergrond: altijd donkere tekst. */}
+      <Text weight="bold" color={colors.onAccent}>{message}</Text>
     </View>
   );
 }
@@ -26,9 +27,9 @@ const styles = StyleSheet.create({
     bottom: 16,
     left: 16,
     right: 16,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    borderRadius: 20,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
   },
   default: { backgroundColor: colors.text },
   success: { backgroundColor: colors.success },

@@ -14,6 +14,8 @@ import { Skeleton } from '../../../src/components/primitives/Skeleton';
 import { Toast } from '../../../src/components/primitives/Toast';
 import { StyledButton } from '../../../src/components/StyledButton';
 import { BackButton } from '../../../src/components/BackButton';
+import { GroupBanner } from '../../../src/components/GroupBanner';
+import { AvatarStack } from '../../../src/components/AvatarStack';
 import { MemberRow } from '../../../src/components/MemberRow';
 import { CardSkeleton } from '../../../src/components/CardSkeleton';
 import { colors } from '../../../src/theme/colors';
@@ -93,58 +95,57 @@ export default function GroepsdetailScreen() {
     <Stack flex={1}>
       <Screen padding="lg">
         <Stack gap="lg">
-          <BackButton onPress={goBack} testID="group-back" />
+          <GroupBanner onBack={goBack} backTestID="group-back" />
 
           {group === undefined || members === undefined ? (
             <Stack gap="md">
-              <Skeleton width="60%" height={32} />
+              <Skeleton width="60%" height={32} borderRadius={8} />
               <CardSkeleton />
               <CardSkeleton />
             </Stack>
           ) : (
             <>
-              <Stack gap="sm">
-                <Text size="xl" weight="bold" color={colors.primary}>{group.name}</Text>
-                <Text color={colors.textSecondary}>{memberCount === 1 ? '1 lid' : `${memberCount} leden`}</Text>
-              </Stack>
+              <Row gap="md" justify="space-between">
+                <Stack flex={1}>
+                  <Text size="xl" weight="bold">{group.name}</Text>
+                  <Text color={colors.textSecondary}>{memberCount === 1 ? '1 lid' : `${memberCount} leden`}</Text>
+                </Stack>
+                <AvatarStack names={members.map((member) => member.username)} />
+              </Row>
 
               {/* Uitnodigingscode */}
-              <Card>
-                <Stack gap="sm" padding="md">
+              <Card variant="dashed">
+                <Stack gap="sm" padding="lg">
                   <Row gap="md" justify="space-between">
-                    <Stack>
-                      <Text color={colors.textSecondary}>Uitnodigingscode</Text>
+                    <Stack flex={1}>
+                      <Text color={colors.textSecondary}>Nodig vrienden uit met</Text>
                       {/* Spaties alleen voor de leesbaarheid; kopiëren geeft de code zonder spaties. */}
-                      <Text size="xl" weight="bold" color={colors.primary}>
+                      <Text size="xl" weight="bold" color={colors.accent}>
                         {group.inviteCode.split('').join(' ')}
                       </Text>
                     </Stack>
-                    <StyledButton label="Kopieer" variant="accent" onPress={handleCopy} testID="copy-code-button" />
+                    <StyledButton label="Kopieer" onPress={handleCopy} testID="copy-code-button" />
                   </Row>
                   <Text size="sm" color={colors.textSecondary}>
-                    Vrienden typen deze code in bij Groepen → Groep joinen.
+                    Vrienden typen deze code in bij Groepen → Code gekregen?
                   </Text>
                 </Stack>
               </Card>
 
               {/* Leden */}
-              <Stack gap="md">
-                <Text size="lg" weight="bold" color={colors.primary}>Leden</Text>
-                <Card>
-                  <Stack gap="md" padding="md">
-                    {members.map((member, index) => (
-                      <Stack key={member.userId} gap="md">
-                        {index > 0 && <Divider />}
-                        <MemberRow
-                          member={member}
-                          isCreator={member.userId === group.createdBy}
-                          isMe={member.userId === myUserId}
-                          testID={`member-${member.userId}`}
-                        />
-                      </Stack>
-                    ))}
+              <Stack gap="sm">
+                <Text size="lg" weight="bold" font="display">Leden</Text>
+                {members.map((member) => (
+                  <Stack key={member.userId}>
+                    <MemberRow
+                      member={member}
+                      isCreator={member.userId === group.createdBy}
+                      isMe={member.userId === myUserId}
+                      testID={`member-${member.userId}`}
+                    />
+                    <Divider spacing="md" />
                   </Stack>
-                </Card>
+                ))}
               </Stack>
             </>
           )}

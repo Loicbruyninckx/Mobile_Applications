@@ -20,7 +20,10 @@ interface SearchPickerProps {
   results: PickerOption[];
   isSearching: boolean;
   error?: string;
+  /** Icoon op de resultaatkaarten. */
   icon: IconName;
+  /** Icoon in het zoekveld, bv. 'search' of 'location-outline'. */
+  inputIcon: IconName;
   onSelect: (id: string) => void;
   /** Tekst van de "nieuw toevoegen"-kaart, bv. "Nieuw bier toevoegen". */
   addLabel: string;
@@ -41,6 +44,7 @@ export function SearchPicker({
   isSearching,
   error,
   icon,
+  inputIcon,
   onSelect,
   addLabel,
   onAdd,
@@ -52,13 +56,16 @@ export function SearchPicker({
     <Stack gap="sm">
       <InputField
         label={label}
+        showLabel={false}
+        variant="pill"
+        icon={inputIcon}
         value={query}
         onChangeText={onQueryChange}
         placeholder={placeholder}
         autoCapitalize="words"
         testID={`${testID}-search`}
       />
-      {isSearching && <Spinner color={colors.primary} />}
+      {isSearching && <Spinner color={colors.accent} />}
       {error !== undefined && <Text color={colors.error}>{error}</Text>}
       {results.map((option) => (
         <ChoiceCard

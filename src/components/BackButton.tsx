@@ -1,15 +1,17 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
-import { Icon } from './primitives/Icon';
+import { Icon, type IconName } from './primitives/Icon';
 
 interface BackButtonProps {
   onPress: () => void;
   label?: string;
+  /** Standaard een pijltje terug; 'close' voor een kruisje. */
+  icon?: IconName;
   testID?: string;
 }
 
-/** Ronde terugknop (48 × 48) linksboven op een detailscherm. */
-export function BackButton({ onPress, label = 'Terug', testID }: BackButtonProps) {
+/** Ronde knop (48 × 48) linksboven op een detailscherm. */
+export function BackButton({ onPress, label = 'Terug', icon = 'chevron-back', testID }: BackButtonProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -18,7 +20,7 @@ export function BackButton({ onPress, label = 'Terug', testID }: BackButtonProps
       accessibilityLabel={label}
       testID={testID}
     >
-      <Icon name="chevron-back" size={24} color={colors.primary} />
+      <Icon name={icon} size={24} color={colors.text} />
     </Pressable>
   );
 }
@@ -30,8 +32,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
 });

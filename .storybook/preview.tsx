@@ -1,11 +1,12 @@
 import React from 'react';
 import type { Preview } from '@storybook/react';
 import { View } from 'react-native';
+import { colors } from '../src/theme/colors';
 
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <View style={{ padding: 16 }}>
+      <View style={{ padding: 16, backgroundColor: colors.background }}>
         <Story />
       </View>
     ),

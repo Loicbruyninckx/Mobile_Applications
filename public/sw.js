@@ -14,7 +14,7 @@
  */
 
 // Verhoog dit nummer als je de cache-strategie verandert: oude caches worden dan opgeruimd.
-const CACHE_NAME = 'bierapp-v1';
+const CACHE_NAME = 'bierapp-v2';
 
 const APP_SHELL = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 

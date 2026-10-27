@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { Redirect, router } from 'expo-router';
 import { useAuthStore } from '../src/state/useAuthStore';
+import { Badge } from '../src/components/primitives/Badge';
 import { InputField } from '../src/components/primitives/InputField';
+import { Row } from '../src/components/primitives/Row';
 import { Screen } from '../src/components/primitives/Screen';
 import { Stack } from '../src/components/primitives/Stack';
 import { Text } from '../src/components/primitives/Text';
+import { BackButton } from '../src/components/BackButton';
+import { LoginHero } from '../src/components/LoginHero';
 import { StyledButton } from '../src/components/StyledButton';
+import { TextLink } from '../src/components/TextLink';
+import { colors } from '../src/theme/colors';
 
 type Mode = 'login' | 'register';
-
-const ERROR_COLOR = '#B3261E';
 
 export default function LoginScreen() {
   const [mode, setMode] = useState<Mode>('login');
@@ -49,51 +53,79 @@ export default function LoginScreen() {
 
   return (
     <Screen padding="lg">
-      <Stack gap="lg">
-        <Text size="xl" weight="bold" align="center">
-          {isRegister ? 'Account maken' : 'Welkom terug'}
-        </Text>
-        {isRegister && (
+      {/* space-between: formulier bovenaan, knop onderaan (bereikbaar met je duim). */}
+      <Stack flex={1} gap="lg" justify="space-between">
+        <Stack gap="lg">
+          {isRegister ? (
+            <>
+              <Row>
+                <BackButton onPress={switchMode} label="Terug naar inloggen" />
+              </Row>
+              <Text size="xxl" weight="bold">
+                Join de <Text size="xxl" weight="bold" color={colors.accent}>crew.</Text>
+              </Text>
+            </>
+          ) : (
+            <>
+              <Row justify="space-between">
+                <Badge label="BIERAPP" />
+                <Text color={colors.textSecondary}>18+</Text>
+              </Row>
+              <LoginHero />
+              <Text size="xxl" weight="bold">
+                Wat drink jij{'\n'}
+                <Text size="xxl" weight="bold" color={colors.accent}>vanavond?</Text>
+              </Text>
+            </>
+          )}
+
+          {isRegister && (
+            <InputField
+              label="Gebruikersnaam"
+              value={username}
+              onChangeText={setUsername}
+              placeholder="bv. loic_b"
+              testID="username-input"
+            />
+          )}
           <InputField
-            label="Gebruikersnaam"
-            value={username}
-            onChangeText={setUsername}
-            placeholder="bv. loic"
-            testID="username-input"
+            label="E-mailadres"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="naam@voorbeeld.be"
+            keyboardType="email-address"
+            testID="email-input"
           />
-        )}
-        <InputField
-          label="E-mail"
-          value={email}
-          onChangeText={setEmail}
-          placeholder="jij@voorbeeld.be"
-          testID="email-input"
-        />
-        <InputField
-          label="Wachtwoord"
-          value={password}
-          onChangeText={setPassword}
-          placeholder={isRegister ? 'Minstens 6 tekens' : undefined}
-          secureTextEntry
-          testID="password-input"
-        />
-        {error !== '' && (
-          <Text size="sm" color={ERROR_COLOR} testID="login-error">
-            {error}
-          </Text>
-        )}
-        <StyledButton
-          label={isRegister ? 'Registreren' : 'Inloggen'}
-          onPress={handleSubmit}
-          isLoading={isLoading}
-          testID={isRegister ? 'register-button' : 'login-button'}
-        />
-        <StyledButton
-          label={isRegister ? 'Ik heb al een account' : 'Nog geen account? Registreer'}
-          onPress={switchMode}
-          variant="secondary"
-          testID="switch-mode-button"
-        />
+          <InputField
+            label="Wachtwoord"
+            value={password}
+            onChangeText={setPassword}
+            placeholder={isRegister ? 'minstens 6 tekens' : '••••••••'}
+            secureTextEntry
+            testID="password-input"
+          />
+          {error !== '' && (
+            <Text color={colors.error} testID="login-error">
+              {error}
+            </Text>
+          )}
+        </Stack>
+
+        <Stack gap="sm">
+          <StyledButton
+            label={isRegister ? 'Account maken' : 'Inloggen'}
+            onPress={handleSubmit}
+            isLoading={isLoading}
+            size="lg"
+            testID={isRegister ? 'register-button' : 'login-button'}
+          />
+          <TextLink
+            prefix={isRegister ? 'Al een account?' : 'Nieuw hier?'}
+            label={isRegister ? 'Inloggen' : 'Maak een account'}
+            onPress={switchMode}
+            testID="switch-mode-button"
+          />
+        </Stack>
       </Stack>
     </Screen>
   );

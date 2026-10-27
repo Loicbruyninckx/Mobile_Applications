@@ -11,7 +11,7 @@ interface NavProps {
 export function Nav({ children, bottomInset = 0, testID }: NavProps) {
   return (
     <View
-      style={[styles.base, { paddingBottom: bottomInset }]}
+      style={[styles.base, { paddingBottom: bottomInset + 6 }]}
       role="tablist"
       testID={testID}
     >
@@ -23,7 +23,9 @@ export function Nav({ children, bottomInset = 0, testID }: NavProps) {
 const styles = StyleSheet.create({
   base: {
     flexDirection: 'row',
-    backgroundColor: colors.card,
+    alignItems: 'flex-end',
+    paddingTop: 6,
+    backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },

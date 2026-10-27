@@ -7,12 +7,12 @@ import { Stack } from './primitives/Stack';
 export function CardSkeleton() {
   return (
     <Card>
-      <Stack gap="sm" padding="md">
+      <Stack padding="lg">
         <Row gap="md">
-          <Skeleton width={52} height={52} borderRadius={12} />
+          <Skeleton width={52} height={52} borderRadius={16} />
           <Stack flex={1} gap="sm">
-            <Skeleton width="70%" height={18} />
-            <Skeleton width="45%" height={14} />
+            <Skeleton width="70%" height={18} borderRadius={8} />
+            <Skeleton width="45%" height={14} borderRadius={8} />
           </Stack>
         </Row>
       </Stack>

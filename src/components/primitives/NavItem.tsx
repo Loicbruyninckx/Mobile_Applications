@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { colors } from '../../theme/colors';
 import { Icon, type IconName } from './Icon';
 import { Text } from './Text';
@@ -8,11 +8,14 @@ interface NavItemProps {
   onPress: () => void;
   active?: boolean;
   icon?: IconName;
+  /** fab = grote ronde limegroene knop in het midden, zonder zichtbaar label. */
+  variant?: 'default' | 'fab';
   testID?: string;
 }
 
-export function NavItem({ label, onPress, active = false, icon, testID }: NavItemProps) {
-  const color = active ? colors.primary : colors.textSecondary;
+export function NavItem({ label, onPress, active = false, icon, variant = 'default', testID }: NavItemProps) {
+  const isFab = variant === 'fab';
+  const iconColor = active ? colors.accent : colors.textSecondary;
 
   return (
     <Pressable
@@ -25,10 +28,24 @@ export function NavItem({ label, onPress, active = false, icon, testID }: NavIte
       accessibilityLabel={label}
       testID={testID}
     >
-      {icon !== undefined && <Icon name={icon} size={24} color={color} />}
-      <Text size="sm" weight={active ? 'bold' : 'normal'} color={color} align="center" numberOfLines={1}>
-        {label}
-      </Text>
+      {isFab ? (
+        <View style={styles.fab}>
+          {icon !== undefined && <Icon name={icon} size={34} color={colors.onAccent} />}
+        </View>
+      ) : (
+        <>
+          {icon !== undefined && <Icon name={icon} size={26} color={iconColor} />}
+          <Text
+            size="sm"
+            weight="bold"
+            color={active ? colors.text : colors.textSecondary}
+            align="center"
+            numberOfLines={1}
+          >
+            {label}
+          </Text>
+        </>
+      )}
     </Pressable>
   );
 }
@@ -40,7 +57,19 @@ const styles = StyleSheet.create({
     minHeight: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
+    paddingVertical: 4,
     gap: 2,
+  },
+  // Steekt half boven de balk uit, zodat de belangrijkste actie (bier raten) opvalt en met je duim bereikbaar is.
+  fab: {
+    width: 64,
+    height: 64,
+    marginTop: -28,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accent,
+    borderWidth: 4,
+    borderColor: colors.background,
   },
 });

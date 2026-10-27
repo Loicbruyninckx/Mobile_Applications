@@ -19,7 +19,11 @@ if ('serviceWorker' in navigator) {
 `;
 
 // Achtergrondkleur meteen zetten, zodat je bij het opstarten geen witte flits ziet.
-const baseStyle = `body { background-color: ${colors.background}; }`;
+// Invoervelden: geen browser-focusrand binnenin het ronde veld; InputField kleurt zelf de rand van het veld.
+const baseStyle = `
+body { background-color: ${colors.background}; }
+input:focus, textarea:focus { outline: none; }
+`;
 
 export default function Root({ children }: PropsWithChildren) {
   return (
@@ -34,14 +38,14 @@ export default function Root({ children }: PropsWithChildren) {
 
         {/* PWA: manifest en kleur van de browserbalk (Android). */}
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content={colors.primary} />
+        <meta name="theme-color" content={colors.background} />
         <link rel="icon" type="image/png" href="/icon-192.png" />
 
         {/* iPhone/iPad lezen het manifest maar half: deze tags zorgen voor icoon en volledig scherm. */}
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
         <meta name="apple-mobile-web-app-title" content="Bierapp" />
 
         <ScrollViewStyleReset />
