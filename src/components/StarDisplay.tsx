@@ -2,6 +2,7 @@ import { View, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { Icon } from './primitives/Icon';
 import { Text } from './primitives/Text';
+import { formatScore } from '../utils/formatScore';
 
 interface StarDisplayProps {
   /** Een score van 1 tot 5. Mag een kommagetal zijn, bv. een gemiddelde van 4,5. */
@@ -13,11 +14,6 @@ interface StarDisplayProps {
   variant?: 'pill' | 'plain';
   size?: 'md' | 'lg';
   testID?: string;
-}
-
-/** "4,5" i.p.v. "4.5"; hele getallen zonder komma. */
-function formatScore(score: number): string {
-  return Number.isInteger(score) ? String(score) : score.toFixed(1).replace('.', ',');
 }
 
 /** Toont een score als "★ 4" (alleen lezen). Schermlezers horen "4 van 5 sterren". */

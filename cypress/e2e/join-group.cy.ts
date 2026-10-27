@@ -53,7 +53,8 @@ describe('Groep joinen met een code', () => {
 
     // Home: de rating die test1 met Testgroep deelde.
     cy.get('[data-testid="tab-index"]').click();
-    cy.contains('[data-testid="feed-card"]', FEED_REVIEW).should('be.visible');
+    // De feed staat onderaan Home (onder Jouw week, Toppers...): eerst naar beneden scrollen.
+    cy.contains('[data-testid="feed-card"]', FEED_REVIEW).scrollIntoView().should('be.visible');
   });
 
   it('3b: een ongeldige code geeft een foutmelding en geen nieuwe groep', () => {

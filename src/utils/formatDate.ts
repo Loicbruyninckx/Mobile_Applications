@@ -26,3 +26,15 @@ export function formatTimeAgo(iso: string, now: Date = new Date()): string {
 
   return formatDate(iso);
 }
+
+const DAYS = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
+
+/** "Dinsdagavond": de dag plus het dagdeel (nacht 0–6, ochtend 6–12, middag 12–18, avond 18–24). */
+export function formatDayPart(date: Date = new Date()): string {
+  const hour = date.getHours();
+  let part = 'avond';
+  if (hour < 6) part = 'nacht';
+  else if (hour < 12) part = 'ochtend';
+  else if (hour < 18) part = 'middag';
+  return `${DAYS[date.getDay()] ?? ''}${part}`;
+}

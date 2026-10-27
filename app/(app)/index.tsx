@@ -1,105 +1,78 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { router, useFocusEffect } from 'expo-router';
-import { getMyGroups } from '../../src/services/groupService';
-import { getGroupFeed } from '../../src/services/ratingService';
+import { getHomeData } from '../../src/services/homeService';
 import { useAuthStore } from '../../src/state/useAuthStore';
 import { Screen } from '../../src/components/primitives/Screen';
 import { Stack } from '../../src/components/primitives/Stack';
 import { Row } from '../../src/components/primitives/Row';
-import { Text } from '../../src/components/primitives/Text';
 import { EmptyState } from '../../src/components/primitives/EmptyState';
-import { Avatar } from '../../src/components/primitives/Avatar';
 import { StyledButton } from '../../src/components/StyledButton';
 import { ChoiceChip } from '../../src/components/ChoiceChip';
 import { FeedCard } from '../../src/components/FeedCard';
-import { CardSkeleton } from '../../src/components/CardSkeleton';
-import { colors } from '../../src/theme/colors';
-import type { Group } from '../../src/types/Group';
-import type { FeedRating } from '../../src/types/Rating';
+import { HomeHeader } from '../../src/components/HomeHeader';
+import { HomeSection } from '../../src/components/HomeSection';
+import { HomeSkeleton } from '../../src/components/HomeSkeleton';
+import { ActiveFriends } from '../../src/components/ActiveFriends';
+import { WeekStats } from '../../src/components/WeekStats';
+import { TopBeerCard } from '../../src/components/TopBeerCard';
+import { HotspotCard } from '../../src/components/HotspotCard';
+import { formatDayPart } from '../../src/utils/formatDate';
+import type { HomeData, HomeFeedRating } from '../../src/types/Home';
 
 /** 'all' = alle groepen, anders het id van één groep. */
 type GroupFilter = 'all' | string;
-
-interface FeedData {
-  groups: Group[];
-  ratings: FeedRating[];
-}
 
 export default function HomeScreen() {
   const myUserId = useAuthStore((state) => state.user?.id);
   const myName = useAuthStore((state) => state.user?.username);
   // undefined = nog nooit geladen → skeletons tonen.
-  const [feed, setFeed] = useState<FeedData | undefined>();
+  const [data, setData] = useState<HomeData | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<GroupFilter>('all');
+  // Telt de laadbeurten: komt een oud antwoord later binnen dan een nieuw, dan negeren we het.
+  const requestId = useRef(0);
 
-  const load = useCallback(() => {
+  const load = useCallback((showSpinner: boolean) => {
+    const id = ++requestId.current;
     setError(undefined);
-    getMyGroups()
-      .then(async (groups) => {
-        const ratings = await getGroupFeed(groups.map((group) => group.id));
-        setFeed({ groups, ratings });
-        // Groep verlaten of verwijderd? Dan terug naar "Alle groepen".
-        setFilter((current) => (current === 'all' || groups.some((g) => g.id === current) ? current : 'all'));
+    if (showSpinner) setRefreshing(true);
+
+    getHomeData()
+      .then((result) => {
+        if (id !== requestId.current) return;
+        setData(result);
+        // Groep verlaten of verwijderd? Dan terug naar "Alles".
+        setFilter((current) => (current === 'all' || result.groups.some((g) => g.id === current) ? current : 'all'));
       })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : 'Laden mislukt.'));
+      .catch((e: unknown) => {
+        if (id !== requestId.current) return;
+        setError(e instanceof Error ? e.message : 'Laden mislukt.');
+      })
+      .finally(() => {
+        if (id === requestId.current) setRefreshing(false);
+      });
   }, []);
 
-  // Herladen telkens je naar Home gaat, zodat nieuwe ratings van vrienden verschijnen.
-  useFocusEffect(load);
+  // Herladen telkens je naar Home gaat (zonder spinner: de oude data blijft staan).
+  useFocusEffect(useCallback(() => load(false), [load]));
+  const refresh = useCallback(() => load(true), [load]);
 
-  const groupNames = useMemo(
-    () => new Map((feed?.groups ?? []).map((group) => [group.id, group.name])),
-    [feed],
-  );
+  const groupNames = useMemo(() => new Map((data?.groups ?? []).map((group) => [group.id, group.name])), [data]);
 
-  const visibleRatings = useMemo(() => {
-    if (feed === undefined) return [];
-    return filter === 'all' ? feed.ratings : feed.ratings.filter((rating) => rating.groupIds.includes(filter));
-  }, [feed, filter]);
+  const visibleFeed = useMemo(() => {
+    if (data === undefined) return [];
+    return filter === 'all' ? data.feed : data.feed.filter((rating) => rating.groupIds.includes(filter));
+  }, [data, filter]);
 
-  /** Bij "Alle groepen" tonen we in welke groep(en) de rating staat; bij één groep is dat overbodig. */
-  const groupLabel = (rating: FeedRating): string | undefined => {
+  /** Bij "Alles" tonen we in welke groep(en) de rating staat; bij één groep is dat overbodig. */
+  const groupLabel = (rating: HomeFeedRating): string | undefined => {
     if (filter !== 'all') return undefined;
-    const names = rating.groupIds.flatMap((id) => {
-      const name = groupNames.get(id);
-      return name !== undefined ? [name] : [];
-    });
-    return names.join(', ');
+    return rating.groupIds.flatMap((id) => groupNames.get(id) ?? []).join(', ');
   };
 
-  const renderContent = () => {
-    if (error !== undefined && feed === undefined) {
-      return (
-        <EmptyState
-          title="Er ging iets mis"
-          description={error}
-          action={<StyledButton label="Opnieuw proberen" onPress={load} testID="feed-retry" />}
-        />
-      );
-    }
-
-    if (feed === undefined) {
-      return (
-        <Stack gap="md">
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-        </Stack>
-      );
-    }
-
-    if (feed.groups.length === 0) {
-      return (
-        <EmptyState
-          title="Je zit nog in geen groep"
-          description="Maak een groep met je vrienden of join er een met een code. Dan zie je hier wat zij drinken."
-          action={<StyledButton label="Naar groepen" onPress={() => router.navigate('/groepen')} testID="feed-to-groups" />}
-        />
-      );
-    }
-
-    if (visibleRatings.length === 0) {
+  const renderFeed = (home: HomeData) => {
+    if (visibleFeed.length === 0) {
       return (
         <EmptyState
           title="Nog geen ratings"
@@ -108,14 +81,14 @@ export default function HomeScreen() {
         />
       );
     }
-
     return (
       <Stack gap="md">
-        {visibleRatings.map((rating) => (
+        {visibleFeed.map((rating) => (
           <FeedCard
             key={rating.id}
             rating={rating}
-            groupLabel={groupLabel(rating)}
+            imageUri={rating.imageUri}
+            groupLabel={home.groups.length > 1 ? groupLabel(rating) : undefined}
             isMine={rating.userId === myUserId}
             testID="feed-card"
           />
@@ -124,40 +97,97 @@ export default function HomeScreen() {
     );
   };
 
-  return (
-    <Screen padding="lg">
+  const renderContent = () => {
+    if (error !== undefined && data === undefined) {
+      return (
+        <EmptyState
+          title="Er ging iets mis"
+          description={error}
+          action={<StyledButton label="Opnieuw proberen" onPress={refresh} testID="feed-retry" />}
+        />
+      );
+    }
+
+    if (data === undefined) return <HomeSkeleton />;
+
+    return (
       <Stack gap="lg">
-        <Row justify="space-between">
-          <Stack flex={1}>
-            {myName !== undefined && <Text size="lg" color={colors.textSecondary}>Hey {myName}</Text>}
-            <Text size="xl" weight="bold">Je crew drinkt</Text>
-          </Stack>
-          <Avatar name={myName} size="lg" ring />
-        </Row>
+        {data.activeFriends.length > 0 && <ActiveFriends friends={data.activeFriends} testID="home-active" />}
 
-        {/* Filter per groep: alleen zinvol vanaf 2 groepen. Scrollt opzij als het niet past. */}
-        {feed !== undefined && feed.groups.length > 1 && (
-          <Row gap="sm" scroll>
-            <ChoiceChip
-              label="Alles"
-              variant="accent"
-              selected={filter === 'all'}
-              onPress={() => setFilter('all')}
-              testID="feed-filter-all"
-            />
-            {feed.groups.map((group) => (
-              <ChoiceChip
-                key={group.id}
-                label={group.name}
-                variant="accent"
-                selected={filter === group.id}
-                onPress={() => setFilter(group.id)}
-                testID={`feed-filter-${group.id}`}
+        <WeekStats stats={data.week} onTopPress={() => router.navigate('/mijn-ratings')} testID="home-week" />
+
+        {data.groups.length === 0 ? (
+          <EmptyState
+            title="Je zit nog in geen groep"
+            description="Maak een groep met je vrienden of join er een met een code. Dan zie je hier wat zij drinken."
+            action={<StyledButton label="Naar groepen" onPress={() => router.navigate('/groepen')} testID="feed-to-groups" />}
+          />
+        ) : (
+          <>
+            <HomeSection title="Toppers deze week" aside="in je groepen" testID="home-tops">
+              {data.topBeers.length === 0 ? (
+                <EmptyState
+                  title="Nog geen toppers deze week"
+                  description="Een bier komt hier zodra het minstens 2 keer geraten is. Tijd voor een pint?"
+                />
+              ) : (
+                <Row gap="md" align="flex-start" scroll>
+                  {data.topBeers.map((top) => (
+                    <TopBeerCard key={top.beer.id} top={top} testID={`top-beer-${top.rank}`} />
+                  ))}
+                </Row>
+              )}
+            </HomeSection>
+
+            {data.hotspot !== undefined && (
+              <HotspotCard
+                hotspot={data.hotspot}
+                onPress={() => {
+                  if (data.hotspot !== undefined) {
+                    router.push({ pathname: '/groepen/[id]', params: { id: data.hotspot.groupId } });
+                  }
+                }}
+                testID="home-hotspot"
               />
-            ))}
-          </Row>
-        )}
+            )}
 
+            <HomeSection
+              title="Recent"
+              aside={
+                <Row gap="sm" scroll>
+                  <ChoiceChip
+                    label="Alles"
+                    variant="accent"
+                    selected={filter === 'all'}
+                    onPress={() => setFilter('all')}
+                    testID="feed-filter-all"
+                  />
+                  {data.groups.map((group) => (
+                    <ChoiceChip
+                      key={group.id}
+                      label={group.name}
+                      variant="accent"
+                      selected={filter === group.id}
+                      onPress={() => setFilter(group.id)}
+                      testID={`feed-filter-${group.id}`}
+                    />
+                  ))}
+                </Row>
+              }
+              testID="home-feed"
+            >
+              {renderFeed(data)}
+            </HomeSection>
+          </>
+        )}
+      </Stack>
+    );
+  };
+
+  return (
+    <Screen padding="lg" onRefresh={refresh} refreshing={refreshing} testID="home-screen">
+      <Stack gap="lg">
+        <HomeHeader dayPart={formatDayPart()} username={myName} onAvatarPress={() => router.navigate('/profiel')} />
         {renderContent()}
       </Stack>
     </Screen>

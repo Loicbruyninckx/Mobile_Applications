@@ -7,3 +7,4 @@ export type { Rating, RatingWithDetails, FeedRating, NewRating, NewRatingInput, 
 export type { Group, GroupWithMemberCount, NewGroup } from './Group';
 export type { GroupMember, GroupMemberWithProfile } from './GroupMember';
 export type { RatingShare } from './RatingShare';
+export type { ActiveFriend, WeekStats, TopBeer, Hotspot, HomeFeedRating, HomeData } from './Home';
