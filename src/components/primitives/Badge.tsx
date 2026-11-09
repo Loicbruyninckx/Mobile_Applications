@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
   },
   default: { backgroundColor: colors.accent },
   success: { backgroundColor: colors.success },
-  warning: { backgroundColor: '#FFC94D' },
+  warning: { backgroundColor: colors.warning },
   error: { backgroundColor: colors.error },
 });

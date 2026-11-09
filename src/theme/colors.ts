@@ -15,6 +15,8 @@ export const colors = {
   accent: '#DAFF3E',
   onAccent: '#0B0B0B',
   error: '#FF6B6B',
+  /** Waarschuwing, bv. een gele badge. Altijd met donkere tekst (onAccent). */
+  warning: '#FFC94D',
   success: '#DAFF3E',
 };
 

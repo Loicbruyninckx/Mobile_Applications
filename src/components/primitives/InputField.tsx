@@ -110,7 +110,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  default: { borderRadius: 18 },
+  // Pilvormig volgens de stijlgids (CLAUDE.md → Design).
+  default: { borderRadius: 999 },
   pill: { borderRadius: 999 },
   code: { borderRadius: 18, backgroundColor: colors.background, borderColor: colors.background },
   multilineBox: { alignItems: 'flex-start', borderRadius: 24, paddingVertical: 14 },
