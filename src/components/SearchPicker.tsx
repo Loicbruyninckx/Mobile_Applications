@@ -14,6 +14,8 @@ export interface PickerOption {
 
 interface SearchPickerProps {
   label: string;
+  /** Verplicht: het label wordt getoond met een * erachter. */
+  required?: boolean;
   placeholder: string;
   query: string;
   onQueryChange: (query: string) => void;
@@ -37,6 +39,7 @@ interface SearchPickerProps {
  */
 export function SearchPicker({
   label,
+  required = false,
   placeholder,
   query,
   onQueryChange,
@@ -56,7 +59,8 @@ export function SearchPicker({
     <Stack gap="sm">
       <InputField
         label={label}
-        showLabel={false}
+        showLabel={required}
+        required={required}
         variant="pill"
         icon={inputIcon}
         value={query}

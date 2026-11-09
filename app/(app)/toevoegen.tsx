@@ -214,6 +214,9 @@ export default function ToevoegenScreen() {
             <Text size="xxl" weight="bold">
               Wat drink <Text size="xxl" weight="bold" color={colors.accent}>je?</Text>
             </Text>
+            <Text size="sm" color={colors.textSecondary}>
+              Velden met <Text size="sm" weight="bold" color={colors.accent}>*</Text> zijn verplicht.
+            </Text>
           </Stack>
 
           {/* 1. Welk bier? */}
@@ -233,6 +236,7 @@ export default function ToevoegenScreen() {
                 <Text size="lg" weight="bold" font="display">Nieuw bier</Text>
                 <InputField
                   label="Naam"
+                  required
                   value={beerForm.name}
                   onChangeText={(name) => setBeerForm({ ...beerForm, name })}
                   autoCapitalize="words"
@@ -282,6 +286,7 @@ export default function ToevoegenScreen() {
           ) : (
             <SearchPicker
               label="Welk bier?"
+              required
               placeholder="Zoek bier of brouwerij…"
               query={beerQuery}
               onQueryChange={setBeerQuery}
@@ -304,7 +309,9 @@ export default function ToevoegenScreen() {
           {/* 2. Score */}
           <Stack gap="sm">
             <Row justify="space-between">
-              <Text size="lg" weight="medium" color={colors.textSecondary}>Jouw score</Text>
+              <Text size="lg" weight="medium" color={colors.textSecondary}>
+                Jouw score <Text size="lg" weight="bold" color={colors.accent}>*</Text>
+              </Text>
               {score !== undefined && (
                 <Text size="lg" weight="bold" color={colors.accent}>{score}/5 · {SCORE_LABELS[score]}</Text>
               )}
@@ -342,6 +349,7 @@ export default function ToevoegenScreen() {
                 <Text size="lg" weight="bold" font="display">Nieuw café</Text>
                 <InputField
                   label="Naam"
+                  required
                   value={cafeForm.name}
                   onChangeText={(name) => setCafeForm({ ...cafeForm, name })}
                   autoCapitalize="words"
@@ -349,6 +357,7 @@ export default function ToevoegenScreen() {
                 />
                 <InputField
                   label="Stad"
+                  required
                   value={cafeForm.city}
                   onChangeText={(city) => setCafeForm({ ...cafeForm, city })}
                   placeholder="bv. Leuven"

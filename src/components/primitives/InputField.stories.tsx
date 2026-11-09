@@ -10,5 +10,8 @@ export const WithError: Story = {
   args: { label: 'Email', value: 'invalid', onChangeText: () => {}, error: 'Enter a valid email' },
 };
 export const Password: Story = {
-  args: { label: 'Password', value: '', onChangeText: () => {}, secureTextEntry: true },
+  args: { label: 'Password', value: 'geheim123', onChangeText: () => {}, secureTextEntry: true },
+};
+export const Required: Story = {
+  args: { label: 'Naam', value: '', onChangeText: () => {}, required: true },
 };
