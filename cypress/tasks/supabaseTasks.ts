@@ -1,12 +1,4 @@
 /// <reference types="cypress" />
-/**
- * Cypress-taken die rechtstreeks met Supabase praten, om testdata klaar te zetten
- * en op te ruimen zonder via de UI te gaan. Ze draaien in Node, niet in de browser.
- *
- * Ze gebruiken de gewone anon key en loggen in als test1 of test2. RLS geldt dus
- * gewoon: een gebruiker mag zijn eigen ratings verwijderen en zelf een groep verlaten.
- * Een service-role key is niet nodig.
- */
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -24,7 +16,6 @@ interface SignedIn {
 
 type TestUser = 'test1' | 'test2';
 
-/** Leest een .env-bestand (KEY=waarde per regel) zonder extra pakket. */
 function readEnvFile(path: string): Record<string, string> {
   if (!existsSync(path)) return {};
   const values: Record<string, string> = {};
@@ -48,7 +39,6 @@ function requireValue(source: Record<string, unknown>, key: string, where: strin
   return value;
 }
 
-/** Leest het veld `id` uit een rij die Supabase zonder types teruggeeft. */
 function readId(row: unknown): string {
   if (typeof row === 'object' && row && 'id' in row && typeof row.id === 'string') {
     return row.id;
@@ -57,12 +47,10 @@ function readId(row: unknown): string {
 }
 
 export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions): void {
-  // Supabase-gegevens: uit .env (zelfde als de app), of uit de omgeving (bv. CI).
   const dotEnv = { ...readEnvFile(join(config.projectRoot, '.env')), ...process.env };
   const supabaseUrl = requireValue(dotEnv, 'EXPO_PUBLIC_SUPABASE_URL', '.env');
   const supabaseAnonKey = requireValue(dotEnv, 'EXPO_PUBLIC_SUPABASE_ANON_KEY', '.env');
 
-  // Wachtwoorden: uit cypress.env.json (Cypress zet die in config.env).
   const env: Record<string, unknown> = config.env;
   const users: Record<TestUser, Credentials> = {
     test1: {
@@ -75,7 +63,6 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
     },
   };
 
-  // Eén login per gebruiker per testrun: Supabase beperkt het aantal logins per minuut.
   const sessions = new Map<TestUser, Promise<SignedIn>>();
 
   async function doSignIn(user: TestUser): Promise<SignedIn> {
@@ -94,12 +81,10 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
     if (cached !== undefined) return cached;
     const attempt = doSignIn(user);
     sessions.set(user, attempt);
-    // Mislukt? Dan niet onthouden, zodat een volgende taak opnieuw probeert.
     attempt.catch(() => sessions.delete(user));
     return attempt;
   }
 
-  /** Id van Testgroep. test1 is altijd lid (seed.sql), dus RLS laat hem de groep zien. */
   async function getTestgroepId(): Promise<string> {
     const { client } = await signIn('test1');
     const { data, error } = await client.from('groups').select('id').eq('invite_code', TESTGROEP_CODE).maybeSingle();
@@ -110,13 +95,11 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
   }
 
   on('task', {
-    /** Id's van Testgroep, test1 en test2. */
     async getTestContext(): Promise<TestContext> {
       const [groupId, test1, test2] = await Promise.all([getTestgroepId(), signIn('test1'), signIn('test2')]);
       return { groupId, test1Id: test1.userId, test2Id: test2.userId };
     },
 
-    /** Aantal ratings van test1, om te controleren dat er niets bijkwam. */
     async countTest1Ratings(): Promise<number> {
       const { client, userId } = await signIn('test1');
       const { count, error } = await client
@@ -127,7 +110,6 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
       return count ?? 0;
     },
 
-    /** Verwijdert de ratings die de tests maakten. rating_shares verdwijnen mee (on delete cascade). */
     async deleteE2eRatings(): Promise<number> {
       const { client, userId } = await signIn('test1');
       const { data, error } = await client
@@ -140,7 +122,6 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
       return data.length;
     },
 
-    /** test1 raat Testbier en deelt het met Testgroep, zodat de feed van test2 iets toont. */
     async createFeedRating(): Promise<string> {
       const { client } = await signIn('test1');
       const groupId = await getTestgroepId();
@@ -168,7 +149,6 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
       return ratingId;
     },
 
-    /** Maakt test2 lid van Testgroep (zelfde databasefunctie als de app). */
     async joinTestgroep(): Promise<boolean> {
       const { client } = await signIn('test2');
       const { error } = await client.rpc('join_group_by_code', { code: TESTGROEP_CODE });
@@ -176,7 +156,6 @@ export function registerSupabaseTasks(on: Cypress.PluginEvents, config: Cypress.
       return true;
     },
 
-    /** Haalt test2 uit Testgroep. Geen fout als test2 al geen lid was. */
     async leaveTestgroep(): Promise<boolean> {
       const groupId = await getTestgroepId();
       const { client, userId } = await signIn('test2');

@@ -3,7 +3,6 @@ import { envValue } from '../support/env';
 describe('Inloggen en uitloggen', () => {
   it('1a: inloggen lukt en je blijft ingelogd na verversen', () => {
     cy.visit('/');
-    // Niet ingelogd → de app stuurt je naar het inlogscherm.
     cy.location('pathname').should('eq', '/login');
     cy.get('[data-testid="login-button"]').should('be.visible');
     cy.waitForHydration();
@@ -42,7 +41,6 @@ describe('Inloggen en uitloggen', () => {
     cy.location('pathname').should('eq', '/login');
     cy.get('[data-testid="login-button"]').should('be.visible');
 
-    // Home openen via de URL lukt niet meer zonder sessie.
     cy.visit('/');
     cy.location('pathname').should('eq', '/login');
     cy.get('[data-testid="tab-bar"]').should('not.exist');

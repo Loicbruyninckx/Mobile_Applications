@@ -1,25 +1,15 @@
 <!DOCTYPE html>
-<!--
-  De HTML rond de webversie van Bierapp (web.output = "single" in app.json).
-  Expo maakt hier bij het bouwen één dist/index.html van en voegt zelf de JS-bundel en theme-color toe.
-  Elke URL (/groepen, /groepen/abc...) krijgt deze pagina; expo-router kiest daarna in de browser het juiste scherm.
-  Hier staan de PWA-onderdelen: manifest, iconen en de service worker.
-  Kleuren komen uit src/theme/colors.ts (background = #0B0B0B); dit bestand is gewone HTML en kan die niet importeren.
--->
 <html lang="%LANG_ISO_CODE%">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!-- viewport-fit=cover: de app loopt door tot onder de notch; de navigatiebalk houdt zelf rekening met de veilige zone. -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
     <title>%WEB_TITLE%</title>
     <meta name="description" content="Rate speciaalbieren en deel ze met je vriendengroep." />
 
-    <!-- PWA: manifest en icoon. theme-color (kleur van de browserbalk) voegt Expo toe vanuit app.json. -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/png" href="/icon-192.png" />
 
-    <!-- iPhone/iPad lezen het manifest maar half: deze tags zorgen voor icoon en volledig scherm. -->
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -27,14 +17,12 @@
     <meta name="apple-mobile-web-app-title" content="Bierapp" />
 
     <style id="expo-reset">
-      /* Stijl-reset van react-native-web: pagina en #root op volle hoogte, scrollen gebeurt in ScrollView. */
       html,
       body {
         height: 100%;
       }
       body {
         overflow: hidden;
-        /* Achtergrond meteen zetten, zodat je bij het opstarten geen witte flits ziet. */
         background-color: #0b0b0b;
       }
       #root {
@@ -42,7 +30,6 @@
         height: 100%;
         flex: 1;
       }
-      /* Geen browser-focusrand binnenin het ronde veld; InputField kleurt zelf de rand van het veld. */
       input:focus,
       textarea:focus {
         outline: none;
@@ -50,7 +37,6 @@
     </style>
 
     <script>
-      // Service worker pas registreren als de pagina geladen is, zodat de eerste keer laden niet trager wordt.
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('/sw.js').catch(function (error) {
@@ -63,7 +49,6 @@
 
   <body>
     <noscript>Je moet JavaScript aanzetten om Bierapp te gebruiken.</noscript>
-    <!-- Hier tekent de Expo-app zich in. -->
     <div id="root"></div>
   </body>
 </html>

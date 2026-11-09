@@ -5,11 +5,9 @@ import { Text } from './primitives/Text';
 
 interface AvatarStackProps {
   names: string[];
-  /** Hoeveel avatars je maximaal ziet; de rest wordt "+3". */
   max?: number;
 }
 
-/** Overlappende rondjes met initialen, bv. de leden van een groep. */
 export function AvatarStack({ names, max = 2 }: AvatarStackProps) {
   const shown = names.slice(0, max);
   const rest = names.length - shown.length;
@@ -37,7 +35,6 @@ export function AvatarStack({ names, max = 2 }: AvatarStackProps) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },
-  // Rand in de achtergrondkleur: zo zie je waar het ene rondje stopt en het volgende begint.
   item: { borderRadius: 999, borderWidth: 3, borderColor: colors.background },
   overlap: { marginLeft: -14 },
   rest: { width: 50, height: 50, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.accent },

@@ -4,10 +4,6 @@ import { Icon } from './primitives/Icon';
 import { Text } from './primitives/Text';
 import { StarDisplay } from './StarDisplay';
 
-/**
- * Decoratieve kaart bovenaan het inlogscherm: toont in één oogopslag waar de app over gaat
- * (een bier, een score, een café). Schermlezers slaan hem over.
- */
 export function LoginHero() {
   return (
     <View style={styles.card} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" aria-hidden>
@@ -30,7 +26,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Licht gekanteld, zoals een sticker.
   score: { position: 'absolute', top: 18, right: 18, transform: [{ rotate: '4deg' }] },
   cafe: {
     position: 'absolute',

@@ -3,7 +3,6 @@ import { Row } from './primitives/Row';
 import { Skeleton } from './primitives/Skeleton';
 import { Stack } from './primitives/Stack';
 
-/** Grijze placeholder in de vorm van een lijstkaart (icoon + 2 regels), getoond tijdens het laden. */
 export function CardSkeleton() {
   return (
     <Card>

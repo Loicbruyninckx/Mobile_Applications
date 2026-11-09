@@ -5,12 +5,10 @@ import { Icon, type IconName } from './primitives/Icon';
 interface BackButtonProps {
   onPress: () => void;
   label?: string;
-  /** Standaard een pijltje terug; 'close' voor een kruisje. */
   icon?: IconName;
   testID?: string;
 }
 
-/** Ronde knop (48 × 48) linksboven op een detailscherm. */
 export function BackButton({ onPress, label = 'Terug', icon = 'chevron-back', testID }: BackButtonProps) {
   return (
     <Pressable

@@ -6,14 +6,12 @@ import { Stack } from './primitives/Stack';
 import { Text } from './primitives/Text';
 
 interface HomeHeaderProps {
-  /** Bv. "Dinsdagavond". */
   dayPart: string;
   username?: string;
   avatarUri?: string;
   onAvatarPress: () => void;
 }
 
-/** Bovenaan Home: dagdeel, "Hey [naam]" en je avatar (tik = naar Profiel). */
 export function HomeHeader({ dayPart, username, avatarUri, onAvatarPress }: HomeHeaderProps) {
   return (
     <Row justify="space-between" gap="md">

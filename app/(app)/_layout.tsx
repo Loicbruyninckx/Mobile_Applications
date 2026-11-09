@@ -9,23 +9,16 @@ import { Spinner } from '../../src/components/primitives/Spinner';
 import type { IconName } from '../../src/components/primitives/Icon';
 import { colors } from '../../src/theme/colors';
 
-/** De props die expo-router aan een eigen tabbalk geeft. */
 type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 
 interface TabConfig {
-  /** Bestandsnaam van het scherm in app/(app)/. */
   name: string;
   label: string;
   icon: IconName;
   activeIcon: IconName;
-  /** fab = de grote ronde knop in het midden. */
   variant?: 'default' | 'fab';
 }
 
-/**
- * Volgorde en inhoud van de tabbalk. Andere routes (bv. details/[id]) krijgen geen tab.
- * Bier raten staat in het midden als grote knop: de belangrijkste actie, bereikbaar met je duim.
- */
 const TABS: TabConfig[] = [
   { name: 'index', label: 'Home', icon: 'home-outline', activeIcon: 'home' },
   { name: 'mijn-ratings', label: 'Ratings', icon: 'star-outline', activeIcon: 'star' },
@@ -62,7 +55,6 @@ export default function AppLayout() {
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Nog aan het kijken of er een bewaarde sessie is: niet te vroeg naar /login sturen.
   if (!isInitialized) {
     return (
       <Screen padding="lg">
@@ -71,7 +63,6 @@ export default function AppLayout() {
     );
   }
 
-  // Ingelogd zijn is verplicht voor alles in app/(app)/.
   if (!isAuthenticated) return <Redirect href="/login" />;
 
   return (

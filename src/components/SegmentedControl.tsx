@@ -14,7 +14,6 @@ interface SegmentedControlProps<T extends string> {
   testID?: string;
 }
 
-/** Ronde balk met knoppen waarvan er altijd één actief (wit) is, bv. om te sorteren. */
 export function SegmentedControl<T extends string>({ options, value, onChange, testID }: SegmentedControlProps<T>) {
   return (
     <View style={styles.base} role="tablist" testID={testID}>

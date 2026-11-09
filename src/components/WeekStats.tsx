@@ -21,7 +21,6 @@ function Stat({ value, label, testID }: { value: number; label: string; testID?:
   );
 }
 
-/** Limegroen blok "Jouw week" met 3 cijfers over de laatste 7 dagen. */
 export function WeekStats({ stats, onTopPress, testID }: WeekStatsProps) {
   return (
     <Card variant="accent" testID={testID}>

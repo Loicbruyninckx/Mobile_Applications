@@ -4,12 +4,7 @@ import { colors } from '../../theme/colors';
 interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
-  /**
-   * default = donkergrijs vlak, raised = iets lichter (bv. de #1-kaart),
-   * accent = limegroen (bv. "Code gekregen?"), dashed = gestippelde limegroene rand.
-   */
   variant?: 'default' | 'raised' | 'accent' | 'dashed';
-  /** Limegroene rand, bv. voor een gekozen item. */
   highlighted?: boolean;
   testID?: string;
 }

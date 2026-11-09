@@ -1,4 +1,3 @@
-/** Leest een waarde uit cypress.env.json en geeft een duidelijke fout als ze ontbreekt. */
 export function envValue(key: string): string {
   const value: unknown = Cypress.env(key);
   if (typeof value !== 'string' || value === '') {

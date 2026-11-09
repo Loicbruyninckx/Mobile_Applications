@@ -7,11 +7,6 @@ interface SearchState<T> {
   error?: string;
 }
 
-/**
- * Zoekt met `search` zodra je even stopt met typen (vanaf 2 tekens).
- * Een trager, ouder antwoord overschrijft nooit een nieuwer antwoord.
- * De zoekfunctie zelf komt uit een service (src/services/).
- */
 export function useSearch<T>(query: string, search: (term: string) => Promise<T[]>): SearchState<T> {
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
   const [state, setState] = useState<SearchState<T>>({ results: [], isSearching: false });

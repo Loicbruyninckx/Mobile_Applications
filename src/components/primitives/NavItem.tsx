@@ -8,7 +8,6 @@ interface NavItemProps {
   onPress: () => void;
   active?: boolean;
   icon?: IconName;
-  /** fab = grote ronde limegroene knop in het midden, zonder zichtbaar label. */
   variant?: 'default' | 'fab';
   testID?: string;
 }
@@ -21,8 +20,6 @@ export function NavItem({ label, onPress, active = false, icon, variant = 'defau
     <Pressable
       onPress={onPress}
       style={styles.base}
-      // role en aria-* i.p.v. accessibilityRole/accessibilityState: react-native-web zet
-      // alleen deze om naar de DOM, en op native werken ze ook.
       role="tab"
       aria-selected={active}
       accessibilityLabel={label}
@@ -51,7 +48,6 @@ export function NavItem({ label, onPress, active = false, icon, variant = 'defau
 }
 
 const styles = StyleSheet.create({
-  // flex: 1 → alle tabs even breed; minHeight 56 → ruim boven de 48dp tikzone.
   base: {
     flex: 1,
     minHeight: 56,
@@ -60,7 +56,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     gap: 2,
   },
-  // Steekt half boven de balk uit, zodat de belangrijkste actie (bier raten) opvalt en met je duim bereikbaar is.
   fab: {
     width: 64,
     height: 64,

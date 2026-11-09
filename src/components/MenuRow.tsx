@@ -7,13 +7,11 @@ import { Text } from './primitives/Text';
 interface MenuRowProps {
   label: string;
   onPress: () => void;
-  /** Rode tekst, voor acties zoals uitloggen. */
   danger?: boolean;
   isLoading?: boolean;
   testID?: string;
 }
 
-/** Tikbare rij in een menu-kaart: tekst links, pijltje rechts. */
 export function MenuRow({ label, onPress, danger = false, isLoading = false, testID }: MenuRowProps) {
   const color = danger ? colors.error : colors.text;
 

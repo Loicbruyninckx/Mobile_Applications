@@ -5,18 +5,12 @@ import { Text } from './primitives/Text';
 import { formatScore } from '../utils/formatScore';
 
 interface StarDisplayProps {
-  /** Een score van 1 tot 5. Mag een kommagetal zijn, bv. een gemiddelde van 4,5. */
   score: number;
-  /**
-   * pill = donkere ster en cijfer op een limegroene pil (op een kaart),
-   * plain = limegroene ster en cijfer zonder achtergrond (in een lijst).
-   */
   variant?: 'pill' | 'plain';
   size?: 'md' | 'lg';
   testID?: string;
 }
 
-/** Toont een score als "★ 4" (alleen lezen). Schermlezers horen "4 van 5 sterren". */
 export function StarDisplay({ score, variant = 'pill', size = 'md', testID }: StarDisplayProps) {
   const color = variant === 'pill' ? colors.onAccent : colors.accent;
   const text = formatScore(score);

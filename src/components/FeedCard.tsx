@@ -11,22 +11,17 @@ import { StarDisplay } from './StarDisplay';
 
 interface FeedCardProps {
   rating: FeedRating;
-  /** URL van de foto. Met foto = grote kaart, zonder = compacte rij. */
   imageUri?: string;
-  /** Bv. "Tripelaars" of "Tripelaars, Kot 12". Laat weg om geen groep te tonen. */
   groupLabel?: string;
-  /** Toont "Jij" in plaats van je eigen naam. */
   isMine?: boolean;
   testID?: string;
 }
 
-/** "Tripel · @ De Kroon, Leuven · Tripelaars" — lege delen worden overgeslagen. */
 function details(rating: FeedRating, groupLabel?: string): string {
   const cafe = rating.cafe !== undefined ? `@ ${rating.cafe.name}, ${rating.cafe.city}` : undefined;
   return [rating.beer.style, cafe, groupLabel].filter((part) => part !== undefined && part !== '').join(' · ');
 }
 
-/** Eén rating in de groepsfeed: wie, wanneer, score, bier, café, groep en review. */
 export function FeedCard({ rating, imageUri, groupLabel, isMine = false, testID }: FeedCardProps) {
   const beerDetails = details(rating, groupLabel);
   const id = (suffix: string) => (testID !== undefined ? `${testID}-${suffix}` : undefined);
@@ -47,7 +42,6 @@ export function FeedCard({ rating, imageUri, groupLabel, isMine = false, testID 
     </>
   );
 
-  // Met foto: grote kaart met de foto bovenaan en de score erop.
   if (imageUri !== undefined) {
     return (
       <Card testID={testID}>
@@ -69,7 +63,6 @@ export function FeedCard({ rating, imageUri, groupLabel, isMine = false, testID 
     );
   }
 
-  // Zonder foto: compacte rij.
   return (
     <Card testID={testID}>
       <Stack padding="md">

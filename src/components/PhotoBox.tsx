@@ -3,18 +3,13 @@ import { colors } from '../theme/colors';
 import { Icon, type IconName } from './primitives/Icon';
 
 interface PhotoBoxProps {
-  /** URL van de foto. Leeg = grijs vlak met een icoon. */
   uri?: string;
-  /** Icoon als er geen foto is. */
   placeholderIcon?: IconName;
-  /** Breedte/hoogte, bv. 1 = vierkant, 4 / 3 = liggend. */
   aspectRatio?: number;
-  /** Vaste breedte; zonder breedte vult hij de beschikbare ruimte. */
   size?: number;
   children?: React.ReactNode;
 }
 
-/** Een foto met afgeronde hoeken, of een placeholder zoals in de wireframes. Extra inhoud (bv. een score) ligt erbovenop. */
 export function PhotoBox({ uri, placeholderIcon = 'image-outline', aspectRatio = 1, size, children }: PhotoBoxProps) {
   const sizeStyle: ViewStyle = size !== undefined ? { width: size, height: size } : { width: '100%', aspectRatio };
 

@@ -11,7 +11,6 @@ interface ActiveFriendsProps {
   testID?: string;
 }
 
-/** "Nu actief": wie de laatste 3 uur iets raatte, met het café eronder. Scrollt opzij. */
 export function ActiveFriends({ friends, testID }: ActiveFriendsProps) {
   return (
     <Stack gap="md" testID={testID}>

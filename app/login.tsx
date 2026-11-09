@@ -23,7 +23,6 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const { login, register, isLoading, isAuthenticated } = useAuthStore();
 
-  // Al ingelogd (bv. sessie hersteld)? Dan meteen naar home.
   if (isAuthenticated) return <Redirect href="/" />;
 
   const isRegister = mode === 'register';
@@ -53,7 +52,6 @@ export default function LoginScreen() {
 
   return (
     <Screen padding="lg">
-      {/* space-between: formulier bovenaan, knop onderaan (bereikbaar met je duim). */}
       <Stack flex={1} gap="lg" justify="space-between">
         <Stack gap="lg">
           {isRegister ? (

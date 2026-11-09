@@ -13,7 +13,6 @@ interface TopBeerCardProps {
   testID?: string;
 }
 
-/** Eén kaart in "Toppers deze week": rang, foto, gemiddelde, naam en hoe vaak geraten. */
 export function TopBeerCard({ top, testID }: TopBeerCardProps) {
   const details = [top.beer.style, `${top.ratingCount}× geraten`].filter((part) => part !== undefined).join(' · ');
 
@@ -42,6 +41,5 @@ export function TopBeerCard({ top, testID }: TopBeerCardProps) {
 }
 
 const styles = StyleSheet.create({
-  // Iets smaller dan de helft van een gsm, zodat je ziet dat er meer kaarten zijn.
   width: { width: 172 },
 });

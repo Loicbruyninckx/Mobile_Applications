@@ -19,18 +19,15 @@ import { HotspotCard } from '../../src/components/HotspotCard';
 import { formatDayPart } from '../../src/utils/formatDate';
 import type { HomeData, HomeFeedRating } from '../../src/types/Home';
 
-/** 'all' = alle groepen, anders het id van één groep. */
 type GroupFilter = 'all' | string;
 
 export default function HomeScreen() {
   const myUserId = useAuthStore((state) => state.user?.id);
   const myName = useAuthStore((state) => state.user?.username);
-  // undefined = nog nooit geladen → skeletons tonen.
   const [data, setData] = useState<HomeData | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<GroupFilter>('all');
-  // Telt de laadbeurten: komt een oud antwoord later binnen dan een nieuw, dan negeren we het.
   const requestId = useRef(0);
 
   const load = useCallback((showSpinner: boolean) => {
@@ -42,7 +39,6 @@ export default function HomeScreen() {
       .then((result) => {
         if (id !== requestId.current) return;
         setData(result);
-        // Groep verlaten of verwijderd? Dan terug naar "Alles".
         setFilter((current) => (current === 'all' || result.groups.some((g) => g.id === current) ? current : 'all'));
       })
       .catch((e: unknown) => {
@@ -54,7 +50,6 @@ export default function HomeScreen() {
       });
   }, []);
 
-  // Herladen telkens je naar Home gaat (zonder spinner: de oude data blijft staan).
   useFocusEffect(useCallback(() => load(false), [load]));
   const refresh = useCallback(() => load(true), [load]);
 
@@ -65,7 +60,6 @@ export default function HomeScreen() {
     return filter === 'all' ? data.feed : data.feed.filter((rating) => rating.groupIds.includes(filter));
   }, [data, filter]);
 
-  /** Bij "Alles" tonen we in welke groep(en) de rating staat; bij één groep is dat overbodig. */
   const groupLabel = (rating: HomeFeedRating): string | undefined => {
     if (filter !== 'all') return undefined;
     return rating.groupIds.flatMap((id) => groupNames.get(id) ?? []).join(', ');

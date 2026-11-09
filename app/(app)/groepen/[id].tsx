@@ -31,7 +31,6 @@ function goBack() {
   if (router.canGoBack()) {
     router.back();
   } else {
-    // Bv. als je de link rechtstreeks opende: dan is er geen vorige pagina.
     router.replace('/groepen');
   }
 }
@@ -55,7 +54,6 @@ export default function GroepsdetailScreen() {
       .catch((e: unknown) => setError(e instanceof Error ? e.message : 'Laden mislukt.'));
   }, [id]);
 
-  // Herladen bij openen, zodat nieuwe leden meteen zichtbaar zijn.
   useFocusEffect(load);
 
   useEffect(() => {
@@ -113,13 +111,11 @@ export default function GroepsdetailScreen() {
                 <AvatarStack names={members.map((member) => member.username)} />
               </Row>
 
-              {/* Uitnodigingscode */}
               <Card variant="dashed">
                 <Stack gap="sm" padding="lg">
                   <Row gap="md" justify="space-between">
                     <Stack flex={1}>
                       <Text color={colors.textSecondary}>Nodig vrienden uit met</Text>
-                      {/* Spaties alleen voor de leesbaarheid; kopiëren geeft de code zonder spaties. */}
                       <Text size="xl" weight="bold" color={colors.accent}>
                         {group.inviteCode.split('').join(' ')}
                       </Text>
@@ -132,7 +128,6 @@ export default function GroepsdetailScreen() {
                 </Stack>
               </Card>
 
-              {/* Leden */}
               <Stack gap="sm">
                 <Text size="lg" weight="bold" font="display">Leden</Text>
                 {members.map((member) => (

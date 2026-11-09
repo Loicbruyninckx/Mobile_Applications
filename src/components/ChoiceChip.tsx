@@ -7,15 +7,10 @@ interface ChoiceChipProps {
   label: string;
   selected: boolean;
   onPress: () => void;
-  /**
-   * light = gekozen chip wordt wit met een vinkje (aan/uit, bv. "Deel met"),
-   * accent = gekozen chip wordt limegroen (één keuze uit een rij, bv. een filter).
-   */
   variant?: 'light' | 'accent';
   testID?: string;
 }
 
-/** Ronde aan/uit-knop, bv. om te kiezen met welke groepen je deelt. */
 export function ChoiceChip({ label, selected, onPress, variant = 'light', testID }: ChoiceChipProps) {
   const color = selected ? colors.onAccent : colors.text;
 

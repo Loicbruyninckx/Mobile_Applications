@@ -3,11 +3,9 @@ import { GROUP_COLUMNS, readNestedRow, readOptionalNumber, readOptionalString, r
 import type { Group, GroupWithMemberCount, JoinGroupResult } from '../types/Group';
 import type { GroupMemberWithProfile } from '../types/GroupMember';
 
-/** Zelfde regel als de check constraint in SQL: 1 tot 50 tekens. */
 export const GROUP_NAME_MAX = 50;
 export const INVITE_CODE_LENGTH = 6;
 
-/** Leest het aantal uit `group_members(count)`: Supabase geeft dat als [{ count: 3 }]. */
 function readMemberCount(row: Row): number {
   const value = row.group_members;
   if (!Array.isArray(value)) return 0;
@@ -16,7 +14,6 @@ function readMemberCount(row: Row): number {
   return readOptionalNumber(Object.fromEntries(Object.entries(first)), 'count') ?? 0;
 }
 
-/** Alle groepen waar je lid van bent (RLS filtert de rest weg), alfabetisch, met het aantal leden. */
 export async function getMyGroups(): Promise<GroupWithMemberCount[]> {
   const { data, error } = await supabase
     .from('groups')
@@ -28,7 +25,6 @@ export async function getMyGroups(): Promise<GroupWithMemberCount[]> {
   return data.map((row: Row) => ({ ...toGroup(row), memberCount: readMemberCount(row) }));
 }
 
-/** Eén groep. Geeft een fout als de groep niet bestaat of je er geen lid van bent. */
 export async function getGroup(groupId: string): Promise<Group> {
   const { data, error } = await supabase.from('groups').select(GROUP_COLUMNS).eq('id', groupId).maybeSingle();
   if (error) {
@@ -40,7 +36,6 @@ export async function getGroup(groupId: string): Promise<Group> {
   return toGroup(data);
 }
 
-/** Leden van een groep met hun username, in volgorde van joinen. */
 export async function getGroupMembers(groupId: string): Promise<GroupMemberWithProfile[]> {
   const { data, error } = await supabase
     .from('group_members')
@@ -61,10 +56,6 @@ export async function getGroupMembers(groupId: string): Promise<GroupMemberWithP
   });
 }
 
-/**
- * Maakt een groep. De database geeft ze zelf een unieke code van 6 tekens
- * (generate_invite_code) en maakt jou lid (trigger add_creator_as_member).
- */
 export async function createGroup(name: string): Promise<Group> {
   const clean = name.trim();
   if (clean.length < 1 || clean.length > GROUP_NAME_MAX) {
@@ -78,7 +69,6 @@ export async function createGroup(name: string): Promise<Group> {
   return toGroup(data);
 }
 
-/** Maakt van wat iemand typt een nette code: hoofdletters, geen spaties, max. 6 tekens. */
 export function normalizeInviteCode(input: string): string {
   return input
     .toUpperCase()
@@ -86,11 +76,6 @@ export function normalizeInviteCode(input: string): string {
     .slice(0, INVITE_CODE_LENGTH);
 }
 
-/**
- * Kijkt of je al lid bent van de groep met deze code.
- * Door RLS zie je een groep alleen als je er lid (of maker) van bent. De maker kan de
- * groep verlaten hebben, daarom controleren we ook group_members.
- */
 async function findMembershipByCode(code: string): Promise<Group | undefined> {
   const { data: sessionData } = await supabase.auth.getSession();
   const userId = sessionData.session?.user.id;
@@ -110,10 +95,6 @@ async function findMembershipByCode(code: string): Promise<Group | undefined> {
   return data ? toGroup(data) : undefined;
 }
 
-/**
- * Joint een groep met een uitnodigingscode via de databasefunctie join_group_by_code.
- * Ben je al lid, dan verandert er niets en is alreadyMember true.
- */
 export async function joinGroupByCode(code: string): Promise<JoinGroupResult> {
   const clean = normalizeInviteCode(code);
   if (clean.length !== INVITE_CODE_LENGTH) {
@@ -127,7 +108,6 @@ export async function joinGroupByCode(code: string): Promise<JoinGroupResult> {
 
   const { data, error } = await supabase.rpc('join_group_by_code', { code: clean });
   if (error) {
-    // P0002 = "Ongeldige code" uit de SQL-functie.
     if (error.code === 'P0002') {
       throw new Error('Deze code bestaat niet. Controleer of je hem juist overtypte.');
     }

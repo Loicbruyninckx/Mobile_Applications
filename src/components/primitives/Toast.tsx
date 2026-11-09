@@ -10,12 +10,10 @@ interface ToastProps {
 }
 
 export function Toast({ message, variant = 'default', visible, testID }: ToastProps) {
-  // Lege fragment i.p.v. null (schoolregel: geen null).
   if (!visible) return <></>;
 
   return (
     <View style={[styles.base, styles[variant]]} accessibilityRole="alert" testID={testID}>
-      {/* Alle varianten hebben een lichte achtergrond: altijd donkere tekst. */}
       <Text weight="bold" color={colors.onAccent}>{message}</Text>
     </View>
   );

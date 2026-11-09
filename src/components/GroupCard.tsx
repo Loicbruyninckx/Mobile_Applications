@@ -13,7 +13,6 @@ interface GroupCardProps {
   testID?: string;
 }
 
-/** Tikbare kaart voor één groep in de lijst "Je groepen". */
 export function GroupCard({ name, memberCount, onPress, testID }: GroupCardProps) {
   return (
     <Card onPress={onPress} testID={testID}>

@@ -23,7 +23,6 @@ const SORT_OPTIONS: SegmentOption<SortOrder>[] = [
 
 const SKELETON_COUNT = 4;
 
-/** Hoogste score eerst; bij gelijke score de recentste eerst. */
 function byScore(a: RatingWithDetails, b: RatingWithDetails): number {
   return b.score - a.score || b.createdAt.localeCompare(a.createdAt);
 }
@@ -32,7 +31,6 @@ function byDate(a: RatingWithDetails, b: RatingWithDetails): number {
   return b.createdAt.localeCompare(a.createdAt);
 }
 
-/** Zoekt in biernaam, brouwerij, stijl, café en review (hoofdletters maken niet uit). */
 function matches(rating: RatingWithDetails, term: string): boolean {
   const haystack = [
     rating.beer.name,
@@ -49,7 +47,6 @@ function matches(rating: RatingWithDetails, term: string): boolean {
 }
 
 export default function MijnRatingsScreen() {
-  // undefined = nog nooit geladen → skeletons tonen.
   const [ratings, setRatings] = useState<RatingWithDetails[] | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [sortOrder, setSortOrder] = useState<SortOrder>('score');
@@ -62,7 +59,6 @@ export default function MijnRatingsScreen() {
       .catch((e: unknown) => setError(e instanceof Error ? e.message : 'Laden mislukt.'));
   }, []);
 
-  // Herladen telkens je naar deze tab gaat, zodat een net toegevoegde rating meteen verschijnt.
   useFocusEffect(load);
 
   const visibleRatings = useMemo(() => {
@@ -109,7 +105,6 @@ export default function MijnRatingsScreen() {
       return <EmptyState title="Geen resultaten" description={`Niets gevonden voor “${query.trim()}”.`} />;
     }
 
-    // Op score gesorteerd: je #1 krijgt een grote kaart, de rest een genummerde lijst.
     const byScoreOrder = sortOrder === 'score';
     return (
       <Stack>

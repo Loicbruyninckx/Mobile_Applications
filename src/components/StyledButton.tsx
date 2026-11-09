@@ -8,13 +8,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'dark';
 interface StyledButtonProps {
   label: string;
   onPress: () => void;
-  /**
-   * primary = limegroen met donkere tekst (hoofdactie),
-   * secondary = doorzichtig met witte rand,
-   * dark = zwart met limegroene tekst (op een limegroene kaart).
-   */
   variant?: ButtonVariant;
-  /** lg = hoge knop over de volle breedte onderaan een scherm. */
   size?: 'md' | 'lg';
   isLoading?: boolean;
   testID?: string;
@@ -61,7 +55,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 22,
   },
-  // Beide ruim boven de 48dp tikzone uit de stijlgids.
   md: { minHeight: 52 },
   lg: { minHeight: 60 },
   primary: { backgroundColor: colors.accent },

@@ -7,9 +7,7 @@ interface ScreenProps {
   children: React.ReactNode;
   padding?: 'none' | 'sm' | 'md' | 'lg';
   scrollable?: boolean;
-  /** Geef dit mee om pull-to-refresh aan te zetten (alleen als scrollable). */
   onRefresh?: () => void;
-  /** true = er wordt herladen, de spinner blijft staan. */
   refreshing?: boolean;
   testID?: string;
 }
@@ -32,7 +30,6 @@ export function Screen({
     );
   }
 
-  // Web: eigen indicator bovenaan (RefreshControl werkt niet in de browser).
   const webIndicatorHeight = refreshing ? 48 : pull.pullDistance;
 
   return (

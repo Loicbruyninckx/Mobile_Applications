@@ -1,14 +1,9 @@
-/** "26 okt. 2026". Ongeldige datum → lege tekst. */
 export function formatDate(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
   return date.toLocaleDateString('nl-BE', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/**
- * Korte relatieve tijd zoals in de wireframe: "net", "20 min", "3 u", "gisteren", "4 d".
- * Ouder dan een week → gewone datum.
- */
 export function formatTimeAgo(iso: string, now: Date = new Date()): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
@@ -29,7 +24,6 @@ export function formatTimeAgo(iso: string, now: Date = new Date()): string {
 
 const DAYS = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 
-/** "Dinsdagavond": de dag plus het dagdeel (nacht 0–6, ochtend 6–12, middag 12–18, avond 18–24). */
 export function formatDayPart(date: Date = new Date()): string {
   const hour = date.getHours();
   let part = 'avond';

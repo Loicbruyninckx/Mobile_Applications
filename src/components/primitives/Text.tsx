@@ -8,7 +8,6 @@ interface TextProps {
   children: React.ReactNode;
   size?: TextSize;
   weight?: TextWeight;
-  /** display = titellettertype (Space Grotesk). Standaard voor xl en xxl. */
   font?: 'body' | 'display';
   color?: string;
   align?: 'left' | 'center' | 'right';
@@ -17,10 +16,6 @@ interface TextProps {
   testID?: string;
 }
 
-/**
- * Elk gewicht is een apart lettertypebestand. We zetten dus alleen fontFamily en geen
- * fontWeight: op Android valt een eigen lettertype met fontWeight terug op het systeemlettertype.
- */
 function fontFamily(font: 'body' | 'display', weight: TextWeight): string {
   if (font === 'display') return weight === 'bold' ? fonts.display : fonts.displayMedium;
   if (weight === 'bold') return fonts.bodyBold;

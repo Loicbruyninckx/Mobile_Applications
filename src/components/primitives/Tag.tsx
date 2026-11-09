@@ -7,7 +7,6 @@ interface TagProps {
   onRemove?: () => void;
 }
 
-/** Kleine grijze pil met tekst, bv. "12 bieren". */
 export function Tag({ label, onRemove }: TagProps) {
   return (
     <View style={styles.base}>

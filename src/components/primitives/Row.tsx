@@ -6,7 +6,6 @@ interface RowProps {
   align?: 'flex-start' | 'center' | 'flex-end' | 'stretch';
   justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between';
   wrap?: boolean;
-  /** Horizontaal scrollen als de inhoud niet past, bv. een rij filterknoppen. */
   scroll?: boolean;
 }
 

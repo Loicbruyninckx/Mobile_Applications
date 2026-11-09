@@ -7,18 +7,14 @@ import { BackButton } from './BackButton';
 interface ScreenHeaderProps {
   title: string;
   onButtonPress: () => void;
-  /** Wat schermlezers voorlezen voor de knop, bv. "Sluiten". */
   buttonLabel: string;
-  /** Standaard een kruisje. */
   buttonIcon?: IconName;
   testID?: string;
 }
 
-/** Kop met een ronde knop links en een kleine titel precies in het midden. */
 export function ScreenHeader({ title, onButtonPress, buttonLabel, buttonIcon = 'close', testID }: ScreenHeaderProps) {
   return (
     <View style={styles.base}>
-      {/* De titel staat over de hele breedte, zodat hij gecentreerd is ongeacht de knop. */}
       <View style={styles.title}>
         <Text color={colors.textSecondary} weight="medium" align="center">{title}</Text>
       </View>

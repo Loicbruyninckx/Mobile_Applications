@@ -2,7 +2,6 @@ import type { AuthError, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 import type { User } from '../types/User';
 
-/** Haalt de username uit `profiles` (RLS laat je altijd je eigen profiel lezen). */
 async function toAppUser(authUser: SupabaseUser): Promise<User> {
   const { data, error } = await supabase
     .from('profiles')
@@ -10,12 +9,9 @@ async function toAppUser(authUser: SupabaseUser): Promise<User> {
     .eq('id', authUser.id)
     .maybeSingle();
 
-  // Offline (of profiel niet bereikbaar): de gebruikersnaam uit de bewaarde sessie gebruiken.
-  // Die werd bij het registreren meegegeven, zodat je offline ingelogd blijft.
   const metadataName: unknown = authUser.user_metadata.username;
   const fallbackName = typeof metadataName === 'string' ? metadataName : '';
 
-  // Zonder gegenereerde database-types kent TypeScript de vorm van `data` niet: controleer zelf.
   const username: unknown = error ? undefined : data?.username;
   return {
     id: authUser.id,
@@ -24,7 +20,6 @@ async function toAppUser(authUser: SupabaseUser): Promise<User> {
   };
 }
 
-/** Zet Supabase-fouten om naar begrijpelijke Nederlandse meldingen. */
 function toFriendlyError(error: AuthError): Error {
   switch (error.code) {
     case 'invalid_credentials':
@@ -40,7 +35,6 @@ function toFriendlyError(error: AuthError): Error {
     case 'over_email_send_rate_limit':
       return new Error('Te veel pogingen. Wacht even en probeer opnieuw.');
     case 'unexpected_failure':
-      // De trigger handle_new_user faalt als de username al bestaat (unique index).
       return new Error('Deze gebruikersnaam is al in gebruik.');
     default:
       return new Error('Er ging iets mis. Controleer je internetverbinding en probeer opnieuw.');
@@ -64,7 +58,6 @@ export async function register(email: string, password: string, username: string
     throw new Error('Je gebruikersnaam moet 3 tot 30 tekens lang zijn.');
   }
 
-  // De username gaat mee als metadata; de database-trigger maakt er een profiel mee aan.
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
     password,
@@ -74,7 +67,6 @@ export async function register(email: string, password: string, username: string
     throw toFriendlyError(error);
   }
   if (!data.user || !data.session) {
-    // Gebeurt alleen als "Confirm email" aan staat in Supabase.
     throw new Error('Bevestig eerst je e-mailadres via de mail die je kreeg en log dan in.');
   }
   return toAppUser(data.user);
@@ -87,7 +79,6 @@ export async function logout(): Promise<void> {
   }
 }
 
-/** Herstelt een bewaarde sessie bij het opstarten. Geeft undefined als niemand ingelogd is. */
 export async function getCurrentUser(): Promise<User | undefined> {
   const { data } = await supabase.auth.getSession();
   if (!data.session) {
@@ -96,10 +87,6 @@ export async function getCurrentUser(): Promise<User | undefined> {
   return toAppUser(data.session.user);
 }
 
-/**
- * Roept `callback` aan wanneer de sessie eindigt buiten de app om
- * (verlopen, of uitgelogd in een ander tabblad). Geeft een functie terug om te stoppen met luisteren.
- */
 export function onSignedOut(callback: () => void): () => void {
   const { data } = supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {

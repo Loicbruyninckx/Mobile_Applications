@@ -14,7 +14,6 @@ interface MemberRowProps {
   testID?: string;
 }
 
-/** Eén lid in de ledenlijst: avatar met initialen, naam en sinds wanneer lid. */
 export function MemberRow({ member, isCreator, isMe, testID }: MemberRowProps) {
   return (
     <Row gap="md">

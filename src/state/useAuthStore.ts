@@ -9,12 +9,9 @@ import {
 import type { User } from '../types/User';
 
 interface AuthState {
-  /** De ingelogde gebruiker, of undefined als niemand ingelogd is. */
   user?: User;
   isAuthenticated: boolean;
-  /** Bezig met inloggen, registreren of uitloggen. */
   isLoading: boolean;
-  /** True zodra we weten of er een bewaarde sessie is. Voor die tijd niet doorverwijzen. */
   isInitialized: boolean;
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
@@ -33,7 +30,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   init: async () => {
     if (get().isInitialized) return;
 
-    // Sessie verlopen of uitgelogd in een ander tabblad: store leegmaken.
     stopListening?.();
     stopListening = onSignedOut(() => set({ user: undefined, isAuthenticated: false }));
 

@@ -18,10 +18,8 @@ import type { Cafe, NewCafe } from '../types/Cafe';
 import type { FeedRating, NewRatingInput, Rating, RatingWithDetails } from '../types/Rating';
 
 const SEARCH_LIMIT = 8;
-/** Postgres-foutcode voor "bestaat al" (unique index). */
 const UNIQUE_VIOLATION = '23505';
 
-/** De rating is wél opgeslagen, maar het delen met groepen lukte niet. Niet opnieuw opslaan! */
 export class RatingShareError extends Error {
   constructor() {
     super('Je rating is opgeslagen, maar delen met je groepen is mislukt.');
@@ -36,7 +34,6 @@ function saveError(error: PostgrestError, what: string): Error {
   return new Error(`${what} mislukt. Controleer je internetverbinding en probeer opnieuw.`);
 }
 
-/** Zoekt bieren op naam of brouwerij (hoofdletters maken niet uit). */
 export async function searchBeers(term: string): Promise<Beer[]> {
   const clean = cleanSearchTerm(term);
   if (clean.length < 2) return [];
@@ -53,7 +50,6 @@ export async function searchBeers(term: string): Promise<Beer[]> {
   return data.map(toBeer);
 }
 
-/** Zoekt cafés op naam of stad. */
 export async function searchCafes(term: string): Promise<Cafe[]> {
   const clean = cleanSearchTerm(term);
   if (clean.length < 2) return [];
@@ -70,10 +66,6 @@ export async function searchCafes(term: string): Promise<Cafe[]> {
   return data.map(toCafe);
 }
 
-/**
- * Voegt een bier toe aan de gedeelde catalogus.
- * Bestaat het al (zelfde naam + brouwerij), dan krijg je het bestaande bier terug.
- */
 export async function createBeer(beer: NewBeer): Promise<Beer> {
   const name = beer.name.trim();
   const brewery = beer.brewery?.trim() || undefined;
@@ -96,7 +88,6 @@ export async function createBeer(beer: NewBeer): Promise<Beer> {
   throw saveError(error, 'Bier toevoegen');
 }
 
-/** Voegt een café toe. Bestaat het al (zelfde naam + stad), dan krijg je het bestaande terug. */
 export async function createCafe(cafe: NewCafe): Promise<Cafe> {
   const name = cafe.name.trim();
   const city = cafe.city.trim();
@@ -119,10 +110,6 @@ export async function createCafe(cafe: NewCafe): Promise<Cafe> {
   throw saveError(error, 'Café toevoegen');
 }
 
-/**
- * Al je eigen ratings, met bier en café erbij (nieuwste eerst).
- * We filteren expliciet op jouw user_id: RLS laat ook ratings van groepsleden door.
- */
 export async function getMyRatings(): Promise<RatingWithDetails[]> {
   const { data: sessionData } = await supabase.auth.getSession();
   const userId = sessionData.session?.user.id;
@@ -141,7 +128,6 @@ export async function getMyRatings(): Promise<RatingWithDetails[]> {
 
   return data.flatMap((row: Row) => {
     const beerRow = readNestedRow(row, 'beer');
-    // Elke rating heeft een bier (not null in SQL); zonder bier slaan we de rij over.
     if (beerRow === undefined) return [];
     const cafeRow = readNestedRow(row, 'cafe');
     return [{ ...toRating(row), beer: toBeer(beerRow), cafe: cafeRow !== undefined ? toCafe(cafeRow) : undefined }];
@@ -150,11 +136,6 @@ export async function getMyRatings(): Promise<RatingWithDetails[]> {
 
 const FEED_LIMIT = 50;
 
-/**
- * De groepsfeed: de recentste ratings die gedeeld zijn met minstens één van `groupIds`,
- * met bier, café en de naam van wie ze gaf. Je eigen gedeelde ratings staan er ook in.
- * `rating_shares!inner` = alleen ratings die echt gedeeld zijn met een van die groepen.
- */
 export async function getGroupFeed(groupIds: string[]): Promise<FeedRating[]> {
   if (groupIds.length === 0) return [];
 
@@ -187,12 +168,6 @@ export async function getGroupFeed(groupIds: string[]): Promise<FeedRating[]> {
   });
 }
 
-/**
- * Slaat een rating op in één keer:
- * 1. nieuw bier en/of café aanmaken als dat nodig is,
- * 2. de rating zelf opslaan (user_id vult de database in),
- * 3. de rating delen met de gekozen groepen.
- */
 export async function addRating(input: NewRatingInput): Promise<Rating> {
   const beer = input.beer.kind === 'existing' ? input.beer.beer : await createBeer(input.beer.beer);
 

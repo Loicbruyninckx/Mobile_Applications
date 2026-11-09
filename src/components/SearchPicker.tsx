@@ -14,7 +14,6 @@ export interface PickerOption {
 
 interface SearchPickerProps {
   label: string;
-  /** Verplicht: het label wordt getoond met een * erachter. */
   required?: boolean;
   placeholder: string;
   query: string;
@@ -22,21 +21,14 @@ interface SearchPickerProps {
   results: PickerOption[];
   isSearching: boolean;
   error?: string;
-  /** Icoon op de resultaatkaarten. */
   icon: IconName;
-  /** Icoon in het zoekveld, bv. 'search' of 'location-outline'. */
   inputIcon: IconName;
   onSelect: (id: string) => void;
-  /** Tekst van de "nieuw toevoegen"-kaart, bv. "Nieuw bier toevoegen". */
   addLabel: string;
   onAdd: () => void;
   testID: string;
 }
 
-/**
- * Zoekveld met resultaten eronder en een kaart om iets nieuws toe te voegen.
- * Bevat zelf geen API-calls: het scherm geeft de resultaten door.
- */
 export function SearchPicker({
   label,
   required = false,

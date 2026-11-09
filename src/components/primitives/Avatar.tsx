@@ -6,7 +6,6 @@ interface AvatarProps {
   uri?: string;
   name?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  /** Limegroene ring rond de avatar, bv. voor jezelf. */
   ring?: boolean;
 }
 

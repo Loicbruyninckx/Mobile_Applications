@@ -12,23 +12,18 @@ import { StarDisplay } from './StarDisplay';
 
 interface RatingCardProps {
   rating: RatingWithDetails;
-  /** Plaats in de lijst (1 = bovenaan). Laat weg om geen nummer te tonen. */
   rank?: number;
-  /** hero = grote kaart voor je #1, row = lijstregel met een lijn eronder. */
   variant?: 'hero' | 'row';
-  /** Toont de datum, bv. als de lijst op datum gesorteerd is. */
   showDate?: boolean;
   testID?: string;
 }
 
-/** "Tripel · De Kroon, Leuven" — lege delen worden overgeslagen. */
 function subtitle(rating: RatingWithDetails, showDate: boolean): string {
   const cafe = rating.cafe !== undefined ? `${rating.cafe.name}, ${rating.cafe.city}` : undefined;
   const date = showDate ? formatDate(rating.createdAt) : undefined;
   return [rating.beer.style, cafe, date].filter((part) => part !== undefined).join(' · ');
 }
 
-/** Eén rating in Mijn ratings: als grote #1-kaart of als lijstregel. Puur weergave, geen logica. */
 export function RatingCard({ rating, rank, variant = 'row', showDate = false, testID }: RatingCardProps) {
   const details = subtitle(rating, showDate);
   const childID = (suffix: string) => (testID !== undefined ? `${testID}-${suffix}` : undefined);

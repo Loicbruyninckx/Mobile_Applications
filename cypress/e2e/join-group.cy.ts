@@ -6,12 +6,10 @@ describe('Groep joinen met een code', () => {
 
   const testgroepCard = () => `[data-testid="group-card-${context.groupId}"]`;
 
-  /** Aantal groepskaarten op het scherm (0 als er geen zijn). */
   const countGroupCards = () =>
     cy.get('[data-testid="group-list"]').then(($list) => $list.find('[data-testid^="group-card-"]').length);
 
   before(() => {
-    // Begintoestand uit seed.sql: test2 is geen lid, test1 deelde een rating met Testgroep.
     cy.task('leaveTestgroep');
     cy.task('deleteE2eRatings');
     cy.task('createFeedRating');
@@ -25,7 +23,6 @@ describe('Groep joinen met een code', () => {
     cy.task('deleteE2eRatings');
   });
 
-  /** Log in als test2 en open Groepen; wacht tot de lijst geladen is. */
   function openGroepenAsTest2() {
     cy.login(envValue('TEST2_EMAIL'), envValue('TEST2_PASSWORD'));
     cy.get('[data-testid="tab-groepen"]').click();
@@ -46,14 +43,11 @@ describe('Groep joinen met een code', () => {
     cy.get('[data-testid="join-error"]').should('not.exist');
     cy.get(testgroepCard()).should('be.visible');
 
-    // Groepsdetail: test1 en test2 staan bij de leden.
     cy.get(testgroepCard()).click();
     cy.get(`[data-testid="member-${context.test1Id}"]`).should('be.visible');
     cy.get(`[data-testid="member-${context.test2Id}"]`).should('be.visible');
 
-    // Home: de rating die test1 met Testgroep deelde.
     cy.get('[data-testid="tab-index"]').click();
-    // De feed staat onderaan Home (onder Jouw week, Toppers...): eerst naar beneden scrollen.
     cy.contains('[data-testid="feed-card"]', FEED_REVIEW).scrollIntoView().should('be.visible');
   });
 

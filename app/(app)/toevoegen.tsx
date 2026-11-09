@@ -41,14 +41,12 @@ interface ToastState {
   variant: 'success' | 'error';
 }
 
-/** "Westmalle · Tripel · 9,5%" — lege velden worden overgeslagen. */
 function beerSubtitle(beer: { brewery?: string; style?: string; abv?: number }): string | undefined {
   const parts = [beer.brewery, beer.style, beer.abv !== undefined ? `${String(beer.abv).replace('.', ',')}%` : undefined];
   const text = parts.filter((part) => part !== undefined && part !== '').join(' · ');
   return text !== '' ? text : undefined;
 }
 
-/** "9,5" of "9.5" → 9.5. Leeg → undefined. Ongeldig → foutmelding. */
 function parseAbv(text: string): { abv?: number; error?: string } {
   const clean = text.trim().replace(',', '.');
   if (clean === '') return {};
@@ -60,34 +58,28 @@ function parseAbv(text: string): { abv?: number; error?: string } {
 }
 
 export default function ToevoegenScreen() {
-  // --- Bier ---
   const [beerQuery, setBeerQuery] = useState('');
   const [beerChoice, setBeerChoice] = useState<BeerChoice | undefined>();
   const [beerForm, setBeerForm] = useState<BeerForm | undefined>();
   const [beerFormError, setBeerFormError] = useState<string | undefined>();
   const beerSearch = useSearch<Beer>(beerQuery, searchBeers);
 
-  // --- Score en review ---
   const [score, setScore] = useState<Score | undefined>();
   const [review, setReview] = useState('');
 
-  // --- Café ---
   const [cafeQuery, setCafeQuery] = useState('');
   const [cafeChoice, setCafeChoice] = useState<CafeChoice | undefined>();
   const [cafeForm, setCafeForm] = useState<CafeForm | undefined>();
   const [cafeFormError, setCafeFormError] = useState<string | undefined>();
   const cafeSearch = useSearch<Cafe>(cafeQuery, searchCafes);
 
-  // --- Groepen: standaard deel je met al je groepen; we onthouden welke je uitvinkt. ---
   const [groups, setGroups] = useState<Group[]>([]);
   const [unselectedGroupIds, setUnselectedGroupIds] = useState<string[]>([]);
 
-  // --- Opslaan ---
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [toast, setToast] = useState<ToastState | undefined>();
 
-  // Groepen opnieuw laden telkens je naar deze tab gaat (je kan intussen een groep gejoind hebben).
   useFocusEffect(
     useCallback(() => {
       getMyGroups()
@@ -96,7 +88,6 @@ export default function ToevoegenScreen() {
     }, []),
   );
 
-  // Toast verdwijnt na 3 seconden.
   useEffect(() => {
     if (toast === undefined) return;
     const timer = setTimeout(() => setToast(undefined), 3000);
@@ -164,7 +155,6 @@ export default function ToevoegenScreen() {
     setError(undefined);
   };
 
-  /** Kruisje: formulier leegmaken en terug naar Home. */
   const handleClose = () => {
     resetForm();
     router.navigate('/');
@@ -194,7 +184,6 @@ export default function ToevoegenScreen() {
       setToast({ message: 'Rating opgeslagen! 🍺', variant: 'success' });
     } catch (e) {
       if (e instanceof RatingShareError) {
-        // De rating bestaat al: formulier leegmaken zodat je niet dubbel opslaat.
         resetForm();
         setToast({ message: e.message, variant: 'error' });
       } else {
@@ -219,7 +208,6 @@ export default function ToevoegenScreen() {
             </Text>
           </Stack>
 
-          {/* 1. Welk bier? */}
           {beerChoice !== undefined ? (
             <ChoiceCard
               title={beerChoice.beer.name}
@@ -306,7 +294,6 @@ export default function ToevoegenScreen() {
             />
           )}
 
-          {/* 2. Score */}
           <Stack gap="sm">
             <Row justify="space-between">
               <Text size="lg" weight="medium" color={colors.textSecondary}>
@@ -319,7 +306,6 @@ export default function ToevoegenScreen() {
             <StarRating value={score} onChange={setScore} testID="star" />
           </Stack>
 
-          {/* 3. Review (foto komt in de native app) */}
           <InputField
             label="Review (optioneel)"
             showLabel={false}
@@ -332,7 +318,6 @@ export default function ToevoegenScreen() {
             testID="review-input"
           />
 
-          {/* 4. Café */}
           {cafeChoice !== undefined ? (
             <ChoiceCard
               title={cafeChoice.cafe.name}
@@ -398,7 +383,6 @@ export default function ToevoegenScreen() {
             />
           )}
 
-          {/* 5. Delen met */}
           {groups.length === 0 ? (
             <Text color={colors.textSecondary}>
               Je zit nog in geen groep. Deze rating is alleen voor jou zichtbaar.
@@ -420,8 +404,6 @@ export default function ToevoegenScreen() {
         </Stack>
       </Screen>
 
-      {/* Opslaan-knop altijd onderaan, bereikbaar met je duim. De foutmelding staat er
-          vlak boven, zodat je ze ziet waar je ook gescrolld bent. */}
       <Stack padding="lg" gap="sm">
         {error !== undefined && (
           <Text color={colors.error} weight="medium" align="center" testID="rating-error">

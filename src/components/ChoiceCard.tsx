@@ -10,17 +10,13 @@ interface ChoiceCardProps {
   title: string;
   subtitle?: string;
   icon?: IconName;
-  /** Tekst rechts, bv. "Wijzig". */
   actionLabel?: string;
-  /** Icoon helemaal rechts, bv. 'chevron-forward' voor een kaart die naar een detail gaat. */
   trailingIcon?: IconName;
-  /** Limegroene rand: dit item is gekozen. */
   selected?: boolean;
   onPress: () => void;
   testID?: string;
 }
 
-/** Tikbare kaart voor een zoekresultaat of een gekozen bier/café. */
 export function ChoiceCard({
   title,
   subtitle,

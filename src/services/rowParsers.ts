@@ -3,11 +3,6 @@ import type { Cafe } from '../types/Cafe';
 import type { Group } from '../types/Group';
 import type { Rating, Score } from '../types/Rating';
 
-/**
- * Supabase geeft rijen terug zonder TypeScript-types (we hebben geen gegenereerde
- * database-types). Deze helpers lezen elke kolom veilig uit en zetten de
- * lege waarden van de database om naar `undefined` (schoolregel: geen null).
- */
 export type Row = Record<string, unknown>;
 
 export function readString(row: Row, key: string): string {
@@ -23,7 +18,6 @@ export function readOptionalString(row: Row, key: string): string | undefined {
 export function readOptionalNumber(row: Row, key: string): number | undefined {
   const value = row[key];
   if (typeof value === 'number') return value;
-  // Postgres "numeric" komt soms als tekst binnen, bv. "9.5".
   if (typeof value === 'string' && value !== '' && Number.isFinite(Number(value))) return Number(value);
   return undefined;
 }
@@ -85,14 +79,12 @@ export function toRating(row: Row): Rating {
   };
 }
 
-/** Leest een geneste rij (bv. `beer` uit een join). Undefined als die er niet is. */
 export function readNestedRow(row: Row, key: string): Row | undefined {
   const value = row[key];
   if (typeof value !== 'object' || !value || Array.isArray(value)) return undefined;
   return Object.fromEntries(Object.entries(value));
 }
 
-/** Leest een geneste lijst (bv. `rating_shares` uit een join). Leeg als die er niet is. */
 export function readNestedRows(row: Row, key: string): Row[] {
   const value = row[key];
   if (!Array.isArray(value)) return [];
@@ -101,10 +93,6 @@ export function readNestedRows(row: Row, key: string): Row[] {
   );
 }
 
-/**
- * Maakt een zoekterm veilig voor een PostgREST-filter:
- * komma's en haakjes breken `.or(...)`, en % _ * zijn jokertekens.
- */
 export function cleanSearchTerm(term: string): string {
   return term.replace(/[,()"\\%_*]/g, ' ').trim();
 }

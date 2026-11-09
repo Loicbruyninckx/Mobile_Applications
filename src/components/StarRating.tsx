@@ -5,7 +5,6 @@ import { Text } from './primitives/Text';
 
 const SCORES: Score[] = [1, 2, 3, 4, 5];
 
-/** Korte uitleg bij elke score, bv. "4/5 · Heel goed" boven de knoppen. */
 export const SCORE_LABELS: Record<Score, string> = {
   1: 'Niet lekker',
   2: 'Matig',
@@ -15,19 +14,11 @@ export const SCORE_LABELS: Record<Score, string> = {
 };
 
 interface StarRatingProps {
-  /** Gekozen score, of undefined als er nog niets gekozen is. */
   value?: Score;
   onChange: (score: Score) => void;
   testID?: string;
 }
 
-/**
- * Vijf grote cijferknoppen: tik op 4 → score 4. Knoppen 1 t/m 4 kleuren dan limegroen
- * en de gekozen knop krijgt een witte rand (verschil zit dus niet alleen in de kleur).
- * Voor schermlezers is het een keuzegroep (radiogroup): je kiest precies één score,
- * en de gekozen knop is "aangevinkt" (aria-checked).
- * De gevulde knoppen krijgen een testID `<testID>-<score>-filled` voor de E2E-tests.
- */
 export function StarRating({ value, onChange, testID }: StarRatingProps) {
   return (
     <View style={styles.row} role="radiogroup" aria-label="Score">

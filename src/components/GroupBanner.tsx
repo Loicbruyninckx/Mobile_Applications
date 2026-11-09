@@ -8,10 +8,6 @@ interface GroupBannerProps {
   backTestID?: string;
 }
 
-/**
- * Grote banner bovenaan het groepsdetail, met de terugknop erin.
- * Later (native app) komt hier de groepsfoto.
- */
 export function GroupBanner({ onBack, backTestID }: GroupBannerProps) {
   return (
     <View style={styles.banner}>

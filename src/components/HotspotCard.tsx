@@ -14,7 +14,6 @@ interface HotspotCardProps {
   testID?: string;
 }
 
-/** "Hotspot van de week": het best gescoorde café. Tik = naar de groep waar het het meest geratet werd. */
 export function HotspotCard({ hotspot, onPress, testID }: HotspotCardProps) {
   const ratings = hotspot.groupRatingCount === 1 ? 'rating' : 'ratings';
 

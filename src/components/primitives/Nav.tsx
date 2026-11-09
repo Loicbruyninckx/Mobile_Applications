@@ -3,7 +3,6 @@ import { colors } from '../../theme/colors';
 
 interface NavProps {
   children: React.ReactNode;
-  /** Extra ruimte onderaan, bv. voor de home-balk van een iPhone. */
   bottomInset?: number;
   testID?: string;
 }

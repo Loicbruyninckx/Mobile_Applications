@@ -32,7 +32,6 @@ function openGroup(id: string) {
 }
 
 export default function GroepenScreen() {
-  // undefined = nog nooit geladen → skeletons tonen.
   const [groups, setGroups] = useState<GroupWithMemberCount[] | undefined>();
   const [loadError, setLoadError] = useState<string | undefined>();
 
@@ -41,7 +40,6 @@ export default function GroepenScreen() {
   const [joinError, setJoinError] = useState<string | undefined>();
   const [toast, setToast] = useState<ToastState | undefined>();
 
-  // undefined = formulier "Nieuwe groep" is dicht.
   const [newGroupName, setNewGroupName] = useState<string | undefined>();
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | undefined>();
@@ -53,10 +51,8 @@ export default function GroepenScreen() {
       .catch((e: unknown) => setLoadError(e instanceof Error ? e.message : 'Laden mislukt.'));
   }, []);
 
-  // Herladen telkens je naar deze tab of terug naar de lijst gaat.
   useFocusEffect(load);
 
-  // Toast verdwijnt na 3 seconden.
   useEffect(() => {
     if (toast === undefined) return;
     const timer = setTimeout(() => setToast(undefined), 3000);
@@ -69,7 +65,6 @@ export default function GroepenScreen() {
     try {
       const result = await joinGroupByCode(joinCode);
       setJoinCode('');
-      // Op de lijst blijven: je ziet meteen dat de groep erbij staat.
       setToast(
         result.alreadyMember
           ? { message: `Je bent al lid van ${result.groupName}.`, variant: 'default' }
@@ -90,7 +85,6 @@ export default function GroepenScreen() {
     try {
       const group = await createGroup(newGroupName);
       setNewGroupName(undefined);
-      // Meteen naar het detail, waar de uitnodigingscode staat om te delen.
       openGroup(group.id);
     } catch (e) {
       setCreateError(e instanceof Error ? e.message : 'Aanmaken mislukt.');
@@ -127,7 +121,6 @@ export default function GroepenScreen() {
         </Stack>
       );
     }
-    // testID group-list = de lijst is geladen (de tests wachten hierop).
     return (
       <Stack gap="md" testID="group-list">
         {groups.map((group) => (
@@ -159,7 +152,6 @@ export default function GroepenScreen() {
             )}
           </Row>
 
-          {/* Joinen met een code */}
           <Card variant="accent">
             <Stack gap="md" padding="lg">
               <Stack>
@@ -190,7 +182,6 @@ export default function GroepenScreen() {
             </Stack>
           </Card>
 
-          {/* Nieuwe groep */}
           {newGroupName !== undefined && (
             <Card highlighted>
               <Stack gap="md" padding="lg">
@@ -221,7 +212,6 @@ export default function GroepenScreen() {
             </Card>
           )}
 
-          {/* Mijn groepen */}
           <Stack gap="md">
             {renderGroups()}
           </Stack>

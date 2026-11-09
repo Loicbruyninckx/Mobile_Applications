@@ -22,22 +22,16 @@ import type { FeedRating } from '../types/Rating';
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
-/** "Nu actief" = een rating in de laatste 3 uur. */
 const ACTIVE_WINDOW = 3 * HOUR;
-/** "Deze week" = de laatste 7 × 24 uur (geen kalenderweek). */
 const WEEK_WINDOW = 7 * DAY;
-/** Een bier of café telt pas mee voor een ranking vanaf zoveel ratings. */
 const MIN_RATINGS = 2;
 const TOP_BEER_COUNT = 5;
-/** Signed URLs voor de privé bucket "photos" zijn 1 uur geldig. */
 const SIGNED_URL_SECONDS = 60 * 60;
 
-/** Een gedeelde rating van deze week, met het fotopad van de auteur erbij. */
 interface WeekRating extends FeedRating {
   authorAvatarPath?: string;
 }
 
-/** Een eigen rating, met alleen wat "Jouw week" nodig heeft. */
 interface MyRatingSummary {
   style?: string;
   cafeId?: string;
@@ -53,11 +47,6 @@ async function getCurrentUserId(): Promise<string> {
   return userId;
 }
 
-/**
- * Alle ratings van de laatste 7 dagen die gedeeld zijn met minstens één van mijn groepen.
- * Zelfde aanpak als de feed: `rating_shares!inner` houdt alleen gedeelde ratings over,
- * en RLS laat sowieso alleen ratings door die je mag zien.
- */
 async function getSharedRatingsSince(groupIds: string[], since: Date): Promise<WeekRating[]> {
   if (groupIds.length === 0) return [];
 
@@ -91,7 +80,6 @@ async function getSharedRatingsSince(groupIds: string[], since: Date): Promise<W
   });
 }
 
-/** Al mijn eigen ratings (ook ongedeelde), met alleen stijl, café en datum. */
 async function getMyRatingSummaries(userId: string): Promise<MyRatingSummary[]> {
   const { data, error } = await supabase
     .from('ratings')
@@ -111,13 +99,8 @@ async function getMyRatingSummaries(userId: string): Promise<MyRatingSummary[]> 
   });
 }
 
-/** Zet een fotopad om naar een URL (undefined = geen foto). */
 type ToUri = (path: string | undefined) => string | undefined;
 
-/**
- * Zet paden uit de privé bucket "photos" om naar tijdelijke URLs, in één request.
- * Lukt dat niet, dan tonen we gewoon geen foto: Home mag daar niet op crashen.
- */
 async function getSignedUrls(paths: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(paths)];
   if (unique.length === 0) return new Map();
@@ -142,7 +125,6 @@ function average(ratings: FeedRating[]): number {
   return ratings.reduce((sum, rating) => sum + rating.score, 0) / ratings.length;
 }
 
-/** Zet een lijst om in een Map van sleutel → alle elementen met die sleutel ("group by"). */
 function groupBy<T>(items: T[], keyOf: (item: T) => string | undefined): Map<string, T[]> {
   const groups = new Map<string, T[]>();
   for (const item of items) {
@@ -153,7 +135,6 @@ function groupBy<T>(items: T[], keyOf: (item: T) => string | undefined): Map<str
   return groups;
 }
 
-/** Hoogste gemiddelde eerst; bij gelijkstand het meest geratene, dan alfabetisch. */
 function compareRanking(
   a: { averageScore: number; ratingCount: number; name: string },
   b: { averageScore: number; ratingCount: number; name: string },
@@ -161,11 +142,9 @@ function compareRanking(
   return b.averageScore - a.averageScore || b.ratingCount - a.ratingCount || a.name.localeCompare(b.name);
 }
 
-/** Groepsleden (niet jezelf) met een rating in de laatste 3 uur, één keer per persoon. */
 function findActiveFriends(ratings: WeekRating[], myUserId: string, now: Date, toUri: ToUri): ActiveFriend[] {
   const since = new Date(now.getTime() - ACTIVE_WINDOW);
   const latestPerUser = new Map<string, WeekRating>();
-  // De ratings komen nieuwste eerst binnen: de eerste per persoon is de recentste.
   for (const rating of ratings) {
     if (rating.userId === myUserId || !isAfter(rating.createdAt, since)) continue;
     if (!latestPerUser.has(rating.userId)) latestPerUser.set(rating.userId, rating);
@@ -180,12 +159,10 @@ function findActiveFriends(ratings: WeekRating[], myUserId: string, now: Date, t
   }));
 }
 
-/** De 3 cijfers van "Jouw week". */
 function computeWeekStats(myRatings: MyRatingSummary[], weekStart: Date): WeekStats {
   const thisWeek = myRatings.filter((rating) => isAfter(rating.createdAt, weekStart));
   const before = myRatings.filter((rating) => !isAfter(rating.createdAt, weekStart));
 
-  // "Tripel" en "tripel " zijn dezelfde stijl.
   const normalize = (style: string | undefined) => style?.trim().toLowerCase() || undefined;
   const oldStyles = new Set(before.map((rating) => normalize(rating.style)));
   const newStyles = new Set(
@@ -199,10 +176,6 @@ function computeWeekStats(myRatings: MyRatingSummary[], weekStart: Date): WeekSt
   };
 }
 
-/**
- * "Toppers deze week": per bier het gemiddelde van alle gedeelde ratings van deze week,
- * alleen bieren met minstens 2 ratings, de beste 5.
- */
 function computeTopBeers(ratings: WeekRating[], toUri: ToUri): TopBeer[] {
   const perBeer = groupBy(ratings, (rating) => rating.beerId);
 
@@ -215,7 +188,6 @@ function computeTopBeers(ratings: WeekRating[], toUri: ToUri): TopBeer[] {
         name: beer.name,
         averageScore: average(beerRatings),
         ratingCount: beerRatings.length,
-        // Nieuwste eerst, dus de eerste foto is de recentste.
         photoPath: beerRatings.find((rating) => rating.photoUrl !== undefined)?.photoUrl,
       };
     })
@@ -231,7 +203,6 @@ function computeTopBeers(ratings: WeekRating[], toUri: ToUri): TopBeer[] {
   }));
 }
 
-/** "Hotspot van de week": het café met het hoogste gemiddelde (min. 2 ratings). */
 function computeHotspot(ratings: WeekRating[], groups: GroupWithMemberCount[]): Hotspot | undefined {
   const perCafe = groupBy(ratings, (rating) => rating.cafeId);
 
@@ -245,7 +216,6 @@ function computeHotspot(ratings: WeekRating[], groups: GroupWithMemberCount[]): 
     .sort(compareRanking)[0];
   if (best === undefined) return undefined;
 
-  // In welke van mijn groepen werd dit café het meest geratet? Daar gaat een tik naartoe.
   const groupCounts = groups
     .map((group) => ({
       group,
@@ -266,10 +236,6 @@ function computeHotspot(ratings: WeekRating[], groups: GroupWithMemberCount[]): 
   };
 }
 
-/**
- * Laadt alles voor het Home-scherm. De queries lopen tegelijk; de rankings rekenen we
- * daarna uit in TypeScript. RLS bepaalt welke ratings en profielen je te zien krijgt.
- */
 export async function getHomeData(now: Date = new Date()): Promise<HomeData> {
   const userId = await getCurrentUserId();
   const weekStart = new Date(now.getTime() - WEEK_WINDOW);
@@ -283,7 +249,6 @@ export async function getHomeData(now: Date = new Date()): Promise<HomeData> {
     getGroupFeed(groupIds),
   ]);
 
-  // Alle fotopaden (profielfoto's en bierfoto's) in één keer omzetten naar URLs.
   const paths = [
     ...weekRatings.flatMap((rating) => [rating.photoUrl, rating.authorAvatarPath]),
     ...feed.map((rating) => rating.photoUrl),
