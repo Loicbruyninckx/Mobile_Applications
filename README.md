@@ -63,49 +63,13 @@ Studenten proeven op café veel verschillende speciaalbieren, maar vergeten welk
 
 ## Roadmap
 **Opdracht 1 – PWA:** account, bier raten, mijn ratings, groepen, groepsfeed 
+
 **Opdracht 2 – native app:** foto van je bier met locatie, groep joinen via QR-code, meldingen
 
-## Lokaal starten
 
-Maak in de hoofdmap een bestand `.env` met de gegevens van je Supabase-project (*Project Settings → API*):
-
-   ```env
-   EXPO_PUBLIC_SUPABASE_URL=https://<jouw-project>.supabase.co
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=<jouw-anon-public-key>
-   ```
-
-   `.env` staat in `.gitignore`, dus deze sleutels komen nooit op GitHub.
-
-
-### Starten
+## Starten
 
 ```sh
 npm run web
 ```
-
-
-## Tests
-
-De E2E-tests staan in [`cypress/e2e/`](cypress/e2e/) en dekken drie scenario's met in totaal 8 tests:
-
-| Bestand | Wat er getest wordt |
-| --- | --- |
-| `login.cy.ts` | Inloggen, een fout wachtwoord en uitloggen |
-| `rate-beer.cy.ts` | Een bier raten (het verschijnt in Mijn ratings en de feed), en niet opslaan zonder score |
-| `join-group.cy.ts` | Een groep joinen met een geldige code, een ongeldige code en een code van een groep waar je al in zit |
-
-### Eenmalig klaarzetten
-
-1. Maak in Supabase onder *Authentication* twee testaccounts aan: `test1@test.be` en `test2@test.be`.
-2. Voer [`supabase/seed.sql`](supabase/seed.sql) uit in de *SQL Editor*. Dat maakt de testgroep aan.
-3. Maak in de hoofdmap een bestand `cypress.env.json` met de wachtwoorden. Ook dit bestand staat in `.gitignore`.
-
-   ```json
-   {
-     "TEST1_EMAIL": "test1@test.be",
-     "TEST1_PASSWORD": "Test1234!",
-     "TEST2_EMAIL": "test2@test.be",
-     "TEST2_PASSWORD": "Test1234!"
-   }
-   ```
 
